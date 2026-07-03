@@ -1,31 +1,83 @@
+import sqlite3
+from src.inventory.database import get_connection
 from src.inventory.product import Product
 
 class InventoryManager:
     def __init__(self):
-        # The temporary, in-memory collection holding Product objects
-        self.products = []
+        pass
 
-    def add_product(self, name: str, sku: str, price: float, quantity: int) -> Product:
-        """Instantiates a product cleanly and appends it to the collection."""
-        # Check if the SKU already exists to maintain uniqueness
-        for prod in self.products:
-            if prod.sku == sku.strip().upper():
-                raise ValueError(f"A product with SKU '{sku}' already exists.")
+    def add_product(self, name: str, price: float, category: str, stock: int) -> Product:
+        """Validates a product using your guard clauses and inserts it into SQLite."""
+        # Enforce your custom model validations first
+        product = Product(name, price, category, stock)
         
-        # Create and save the new product instance
-        new_product = Product(name, sku, price, quantity)
-        self.products.append(new_product)
-        return new_product
-
+        query = """
+        INSERT INTO products (name, price, category, stock) 
+        VALUES (?, ?, ?, ?);
+        """
+        
+        conn = get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute(query, (product.name, product.price, product.category, product.stock))
+            conn.commit()
+            return product
+        except sqlite3.IntegrityError:
+            # Handles constraint failure if a duplicate product name is added
+            raise ValueError(f"A product named '{product.name}' already exists.")
+        finally:
+            cursor.close()
+            conn.close()
+    
+    
     def get_all_products(self):
-        """Returns the raw list of all active products."""
-        return self.products
+        """Retrieves rows from SQLite and reconstructs your Product objects."""
+        query = "SELECT name, price, category, stock FROM products;"
+        products_list = []
+        
+        conn = get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute(query)
+            rows = cursor.fetchall()
+            for row in rows:
+                # Reconstruct your updated Product layout mapping row values cleanly
+                prod = Product(name=row[0], price=row[1], category=row[2], stock=row[3])
+                products_list.append(prod)
+            return products_list
+        finally:
+            cursor.close()
+            conn.close()
 
-    def delete_product_by_sku(self, sku: str) -> bool:
-        """Searches for a product by its unique SKU and removes it safely."""
-        target_sku = sku.strip().upper()
-        for prod in self.products:
-            if prod.sku == target_sku:
-                self.products.remove(prod)
-                return True # Deletion successful
-        return False # Product not found
+    def update_product_stock(self, name: str, stock: int) -> bool:
+        """Updates the stock level using the product name as the unique target identifier."""
+        if stock < 0:
+            raise ValueError("Product stock level cannot be negative.")
+            
+        target_name = name.strip()
+        query = "UPDATE products SET stock = ? WHERE name = ?;"
+        
+        conn = get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute(query, (stock, target_name))
+            conn.commit()
+            return cursor.rowcount > 0
+        finally:
+            cursor.close()
+            conn.close()
+
+    def delete_product_by_name(self, name: str) -> bool:
+        """Deletes a product matching the specified name string identifier."""
+        target_name = name.strip()
+        query = "DELETE FROM products WHERE name = ?;"
+        
+        conn = get_connection()
+        cursor = conn.cursor()
+        try:
+            cursor.execute(query, (target_name,))
+            conn.commit()
+            return cursor.rowcount > 0
+        finally:
+            cursor.close()
+            conn.close()
