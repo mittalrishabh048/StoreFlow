@@ -18,4 +18,4 @@ class Product:
 
     def __str__(self):
         """Returns a string representation of the product for display purposes."""
-        return f" {self.name:<20} | ${self.price:<8.2f} | {self.category:<15} | {self.stock:<6}"
+        return f" {self.name:<20} | Rs.{self.price:<8.2f} | {self.category:<15} | {self.stock:<6}"
