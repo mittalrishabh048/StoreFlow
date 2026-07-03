@@ -1,3 +1,8 @@
+from src.inventory.database import init_db
+
+# Initialize database storage schema on startup
+init_db()
+
 while True:
     try:
         user_input=int(input("Enter your Choice:"))
