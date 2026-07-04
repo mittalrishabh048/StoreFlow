@@ -5,7 +5,7 @@ from src.inventory.product import Product
 class InventoryManager:
     def __init__(self):
         pass
-
+ 
     def add_product(self, name: str, price: float, category: str, stock: int) -> Product:
         """Validates a product using your guard clauses and inserts it into SQLite."""
         # Enforce your custom model validations first
@@ -25,6 +25,57 @@ class InventoryManager:
         except sqlite3.IntegrityError:
             # Handles constraint failure if a duplicate product name is added
             raise ValueError(f"A product named '{product.name}' already exists.")
+        finally:
+            cursor.close()
+            conn.close()
+    
+    def stock_in(self,name:str,quantity:int) -> bool:
+        if quantity<=0:
+            raise ValueError("Stock quantity must be a greater than 0.")
+        
+        conn=get_connection()
+        cursor=conn.cursor()
+
+        try:
+            # Fetch name and current stock
+            cursor.execute("SELECT name from products WHERE name=?",(name,))
+            result = cursor.fetchone() # Returns a single tuple or None
+            
+            if not result:
+                raise ValueError(f"Product '{name}' does not exist in inventory.")
+
+            current_stock = result[1]
+            new_stock = current_stock + quantity
+        
+            # Reuse your low-level helper to update the database
+            success = self.update_product_stock(name, new_stock)
+            return success
+        finally:
+            cursor.close()
+            conn.close()
+
+        
+    def stock_out(self,name:str,quantity:int) -> bool:
+        if quantity<=0:
+            raise ValueError("Stock quantity must be a greater than 0.")
+        
+        conn=get_connection()
+        cursor=conn.cursor()
+
+        try:
+            cursor.execute("SELECT name,stock from products WHERE name=?",(name,))
+            result = cursor.fetchone()
+
+            if not result:
+                raise ValueError(f"Product '{name}' does not exist in inventory.")
+        
+            if result[1]<quantity:
+                raise ValueError(f"Insufficient stock for product '{name}'. Current stock: {result[1]}")
+        
+            new_stock=result[1]-quantity
+        
+            success=self.update_product_stock(name,new_stock)
+            return success
         finally:
             cursor.close()
             conn.close()
