@@ -44,7 +44,7 @@ class InventoryManager:
         conn = get_connection()
         cursor = conn.cursor()
         try:
-            cursor.execute("UPDATE products SET price=?,category=?,stock=? where name=?:", (new_price, new_category.strip(), new_stock, target_name))
+            cursor.execute("UPDATE products SET price=?,category=?,stock=? where name=?", (new_price, new_category.strip(), new_stock, target_name))
             conn.commit()
             # Returns True if the row count changed (product found and updated)
             return cursor.rowcount > 0
@@ -61,7 +61,7 @@ class InventoryManager:
 
         try:
             # Fetch name and current stock
-            cursor.execute("SELECT name from products WHERE name=?",(name,))
+            cursor.execute("SELECT name,stock from products WHERE name=?",(name.strip(),))
             result = cursor.fetchone() # Returns a single tuple or None
             
             if not result:
@@ -106,7 +106,7 @@ class InventoryManager:
     
     def get_all_products(self):
         """Retrieves rows from SQLite and reconstructs your Product objects."""
-        query = "SELECT name, price, category, stock FROM products;"
+        query = "SELECT name, price, category, stock FROM products"
         products_list = []
         
         conn = get_connection()
@@ -203,7 +203,7 @@ class InventoryManager:
         conn = get_connection()
         cursor = conn.cursor()
         try:
-            cursor.execute("SELECT COUNT(id),SUM(price*stock) FROM products:")
+            cursor.execute("SELECT COUNT(id),SUM(price*stock) FROM products")
             results=cursor.fetchone()
             
             total_products = results[0] if results[0] else 0
