@@ -1,0 +1,56 @@
+/* Clean out browser defaults and select a readable font family */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+    background-color: #EEF4FF;
+    color: #757070;
+}
+
+/* Format our global layout headers and navigation tabs */
+header {
+    background-color: #1E40AF;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+header strong {
+    color: white;
+}
+
+nav a {
+    color: #0066cc;
+    text-decoration: none;
+    font-weight: bold;
+    padding: 0 5px;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+/* Core page content container padding wrapper */
+main {
+    background-color: #ffffff;
+    padding: 25px;
+    margin-top: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    min-height: 200px;
+}
+
+/* Standardized dividers and footer branding sections */
+hr {
+    border: 0;
+    height: 1px;
+    background: #e0e0e0;
+    margin: 20px 0;
+}
+
+footer {
+    text-align: center;
+    font-size: 0.9em;
+    color: #555;
+}
