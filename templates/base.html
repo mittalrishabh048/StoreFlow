@@ -2,20 +2,32 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>StoreFlow Inventory Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StoreFlow Management System</title>
+    <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <nav>
-        <strong>StoreFlow System Navigation Placeholder</strong>
-    </nav>
+
+    <header>
+        <nav>
+            <span><strong>StoreFlow Engine</strong></span> | 
+            <a href="/">Dashboard</a> | 
+            <a href="/products">Products</a>
+        </nav>
+    </header>
+    
     <hr>
 
-    {% block content %}
-    {% endblock %}
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
 
     <hr>
+
     <footer>
-        <p>&copy; 2026 StoreFlow - Enterprise Data Architecture</p>
+        <p>&copy; 2026 StoreFlow System Infrastructure - All Rights Reserved.</p>
     </footer>
+
 </body>
 </html>
