@@ -33,6 +33,10 @@ def products_page():
     all_products = manager.get_all_products()
     return render_template('products.html', products=all_products)
 
+@app.route('/add-product')
+def add_product_page():
+    """Temporary route placeholder to test rendering the Add Product UI."""
+    return render_template('addproduct.html')
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 0 auto; padding: 20px;">
+    <h2>Add New Product</h2>
+    <p style="color: #666;">Enter the inventory specifications below to add a new product item to the warehouse stock database.</p>
+    
+    <hr style="margin-bottom: 20px;">
+
+    <form method="POST" action="/add-product" style="display: flex; flex-direction: column; gap: 15px;">
+        
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label for="name" style="font-weight: bold;">Product Name:</label>
+            <input type="text" id="name" name="name" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label for="price" style="font-weight: bold;">Unit Price ($):</label>
+            <input type="number" id="price" name="price" step="0.01" min="0" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label for="category" style="font-weight: bold;">Category:</label>
+            <input type="text" id="category" name="category" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label for="quantity" style="font-weight: bold;">Initial Quantity in Stock:</label>
+            <input type="number" id="quantity" name="quantity" min="0" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+        </div>
+
+        <hr style="margin: 10px 0;">
+
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <button type="submit" style="background-color: #0066cc; color: white; padding: 10px 15px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+                Add Product
+            </button>
+            <a href="/products" style="color: #666; text-decoration: none; font-weight: bold; padding: 10px;">
+                Back to Products
+            </a>
+        </div>
+
+    </form>
+</div>
+{% endblock %}
