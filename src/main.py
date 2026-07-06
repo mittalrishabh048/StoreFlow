@@ -138,7 +138,7 @@ def main():
             print("\n--- Inventory Dashboard Statistics ---")
             summary = manager.get_inventory_summary()
             print(f"Total Unique Products Tracked : {summary['total_products']}")
-            print(f"Total Portfolio Asset Value   : ${summary['total_value']:.2f}")
+            print(f"Total Portfolio Asset Value   : Rs.{summary['total_value']:.2f}")
 
         elif choice == "9":
             print("\n--- Delete Product From Storage ---")

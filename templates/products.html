@@ -22,7 +22,7 @@
             {% for product in products %}
             <tr>
                 <td style="padding: 10px;">{{ product.name }}</td>
-                <td style="padding: 10px;">${{ "%.2f"|format(product.price) }}</td>
+                <td style="padding: 10px;">Rs.{{ "%.2f"|format(product.price) }}</td>
                 <td style="padding: 10px;">{{ product.stock }} units</td>
             </tr>
             {% else %}
