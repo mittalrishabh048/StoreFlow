@@ -141,7 +141,7 @@ class InventoryManager:
             cursor.close()
             conn.close()
 
-    def delete_product_by_name(self, name: str) -> bool:
+    def delete_product(self, name: str) -> bool:
         """Deletes a product matching the specified name string identifier."""
         target_name = name.strip()
         query = "DELETE FROM products WHERE name = ?;"

@@ -2,8 +2,10 @@
 
 {% block content %}
 <div style="max-width: 500px; margin: 0 auto; padding: 20px;">
-    <h2>Add New Product</h2>
-    <p style="color: #666;">Enter the inventory specifications below to add a new product item to the warehouse stock database.</p>
+    <h2>{{ 'Modify Product Details' if is_edit else 'Add New Product' }}</h2>
+    <p style="color: #666;">
+        {{ 'Update the inventory records for ' ~ product_name ~ ' below.' if is_edit else 'Enter the inventory specifications below to add a new product item.' }}
+    </p>
     
     <hr style="margin-bottom: 20px;">
 
@@ -18,36 +20,43 @@
         </div>
     {% endif %}
 
-    <form method="POST" action="/add-product" style="display: flex; flex-direction: column; gap: 15px;">
+    <form method="POST" action="{{ '/edit-product/' ~ product_name if is_edit else '/add-product' }}" style="display: flex; flex-direction: column; gap: 15px;">
         
         <div style="display: flex; flex-direction: column; gap: 5px;">
             <label for="name" style="font-weight: bold;">Product Name:</label>
-            <input type="text" id="name" name="name" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+            <label for="name" style="font-weight: bold;">Product Name:</label>
+            
+            {% if is_edit %}
+                <input type="text" id="name" name="name" value="{{ form_data.name if form_data else '' }}" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; background-color: #eee;" readonly>
+            {% else %}
+                <input type="text" id="name" name="name" value="{{ form_data.name if form_data else '' }}" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; background-color: #fff;">
+            {% endif %}
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 5px;">
-            <label for="price" style="font-weight: bold;">Unit Price (Rs):</label>
-            <input type="number" id="price" name="price" step="0.01" min="0" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+            <label for="price" style="font-weight: bold;">Unit Price ($):</label>
+            <input type="text" id="price" name="price" value="{{ form_data.price }}" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 5px;">
             <label for="category" style="font-weight: bold;">Category:</label>
-            <input type="text" id="category" name="category" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+            <input type="text" id="category" name="category" value="{{ form_data.category }}" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 5px;">
-            <label for="quantity" style="font-weight: bold;">Initial Quantity in Stock:</label>
-            <input type="number" id="quantity" name="quantity" min="0" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+            <label for="quantity" style="font-weight: bold;">Quantity in Stock:</label>
+            <input type="text" id="quantity" name="quantity" value="{{ form_data.quantity }}" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
         </div>
 
         <hr style="margin: 10px 0;">
 
         <div style="display: flex; gap: 10px; align-items: center;">
             <button type="submit" style="background-color: #0066cc; color: white; padding: 10px 15px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
-                Add Product
+                {{ 'Save Changes' if is_edit else 'Add Product' }}
             </button>
             <a href="/products" style="color: #666; text-decoration: none; font-weight: bold; padding: 10px;">
-                Back to Products
+                Cancel
             </a>
         </div>
 

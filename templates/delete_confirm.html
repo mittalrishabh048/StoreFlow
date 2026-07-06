@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 40px auto; padding: 30px; border: 1px solid #f5c6cb; border-radius: 6px; background-color: #f8d7da; text-align: center;">
+    <h2 style="color: #721c24; margin-top: 0;">⚠️ Critical: Confirm Deletion</h2>
+    
+    <p style="color: #721c24; font-size: 1.1em; margin: 20px 0;">
+        Are you absolutely sure you want to permanently delete <strong>{{ product_name }}</strong> from the warehouse stock system? 
+    </p>
+    <p style="color: #6c757d; font-size: 0.9em;">This structural database modification cannot be undone.</p>
+    
+    <hr style="border: 0; border-top: 1px solid #f5c6cb; margin: 20px 0;">
+
+    <form method="POST" action="/delete-product/{{ product_name }}" style="display: flex; justify-content: center; gap: 15px;">
+        <button type="submit" style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+            Yes, Permanently Delete
+        </button>
+        <a href="/products" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">
+            Cancel and Go Back
+        </a>
+    </form>
+</div>
+{% endblock %}

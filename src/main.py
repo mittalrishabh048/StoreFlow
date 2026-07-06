@@ -143,7 +143,7 @@ def main():
         elif choice == "9":
             print("\n--- Delete Product From Storage ---")
             name = input("Enter the exact product name to remove permanently: ")
-            success = manager.delete_product_by_name(name)
+            success = manager.delete_product(name)
             if success:
                 print(f"Product '{name}' was successfully removed from database records.")
             else:
