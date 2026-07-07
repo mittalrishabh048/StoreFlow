@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 650px; margin: 30px auto; padding: 30px; border: 1px solid #ddd; border-radius: 8px; background-color: #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+    
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; border-bottom: 2px solid #333; padding-bottom: 15px;">
+        <div>
+            <h1 style="margin: 0; color: #1a73e8; letter-spacing: -0.5px;">StoreFlow Invoice</h1>
+            <p style="margin: 4px 0 0 0; color: #666; font-size: 0.95em;">Transactional Sales Receipt Logs</p>
+        </div>
+        <div style="text-align: right;">
+            <h3 style="margin: 0; color: #333;">Receipt ID: #{{ invoice.sale_id }}</h3>
+            <p style="margin: 4px 0 0 0; color: #777; font-size: 0.85em;">{{ invoice.timestamp }}</p>
+        </div>
+    </div>
+
+    <p style="color: #333; font-size: 1.05em; margin-bottom: 20px;">
+        ✓ Transaction successfully completed and permanently logged inside our relational database repository ledger sheets.
+    </p>
+
+    <table border="0" style="width: 100%; border-collapse: collapse; text-align: left; margin-bottom: 25px;">
+        <thead>
+            <tr style="border-bottom: 2px solid #ddd; color: #555; font-size: 0.95em;">
+                <th style="padding: 10px 0;">Inventory Item Spec</th>
+                <th style="padding: 10px 0; text-align: center;">Qty</th>
+                <th style="padding: 10px 0; text-align: right;">Unit Price</th>
+                <th style="padding: 10px 0; text-align: right;">Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in invoice.products %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 12px 0; font-weight: bold; color: #333;">{{ item.name }}</td>
+                    <td style="padding: 12px 0; text-align: center; color: #666;">{{ item.quantity }}</td>
+                    <td style="padding: 12px 0; text-align: right; color: #666;">Rs.{{ "%.2f"|format(item.price) }}</td>
+                    <td style="padding: 12px 0; text-align: right; font-weight: bold; color: #333;">Rs.{{ "%.2f"|format(item.line_total) }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div style="display: flex; justify-content: flex-end; border-top: 2px solid #eee; padding-top: 15px; margin-bottom: 30px;">
+        <div style="text-align: right; width: 50%;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-weight: bold; color: #555; font-size: 1.1em;">Grand Total Settled:</span>
+                <span style="font-size: 1.6em; font-weight: bold; color: #137333;">
+                    Rs.{{ "%.2f"|format(invoice.grand_total) }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ddd; padding-top: 20px;">
+        <a href="/products" style="background-color: #1a73e8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 0.95em;">
+            ← Back to Inventory Dashboard
+        </a>
+        <button onclick="window.print();" style="background-color: #f1f3f4; color: #333; padding: 10px 16px; border: 1px solid #dadce0; border-radius: 4px; font-weight: bold; font-size: 0.95em; cursor: pointer;">
+            🖨 Print Invoice Summary
+        </button>
+    </div>
+
+</div>
+{% endblock %}

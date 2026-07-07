@@ -8,7 +8,7 @@ sys.path.append(os.path.join(BASE_DIR, 'src'))
 
 # FIXED: Import your actual InventoryManager class name
 from src.inventory.manager import InventoryManager
-from src.billing.billing import ShoppingCart
+from src.billing.billing import ShoppingCart,get_invoice_data
 
 # Instantiate the engine constructor
 app = Flask(
@@ -288,27 +288,41 @@ def test_clear_cart():
     flash("Session shopping cart data cleared completely.", "success")
     return redirect('/cart')
 
+
 @app.route('/checkout', methods=['POST'])
 def handle_checkout():
     """Processes session data conversion to permanent records via transaction routines."""
     session_cart_data = session.get('cart', {})
     
-    # Hydrate object container representation
     cart = ShoppingCart()
     cart.items = session_cart_data
     
-    # Execute database pipeline
-    success, message = cart.process_checkout()
+    # Capture the status, message text, and new parent id tracking reference
+    success, message, sale_id = cart.process_checkout()
     
     if success:
-        # Update the session cookie storage state since cart items are cleared inside the method
+        # Clear local session cookie memory layout
         session['cart'] = {}
         session.modified = True
         flash(message, "success")
-        return redirect(url_for('products_page'))
+        # Redirect directly to our newly implemented invoice confirmation screen!
+        return redirect(url_for('view_invoice', sale_id=sale_id))
     else:
         flash(message, "error")
         return redirect('/cart')
+
+
+@app.route('/invoice/<int:sale_id>')
+def view_invoice(sale_id):
+    """Renders a historical receipt summary view for a verified sale transaction record."""
+    # Leverage our thin controller helper to query the database outside app.py
+    invoice = get_invoice_data(sale_id)
+    
+    if not invoice:
+        flash(f"Invoice reference ID #{sale_id} could not be found.", "error")
+        return redirect(url_for('products_page'))
+        
+    return render_template('invoice.html', invoice=invoice)
 
 if __name__ == "__main__":
     app.run(debug=True)

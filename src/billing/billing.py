@@ -48,21 +48,19 @@ class ShoppingCart:
 
     def process_checkout(self):
         """Executes a fully transactional database checkout routine, validating stock levels."""
-        # Dynamically import get_connection to avoid circular dependency loops
         from inventory.database import get_connection
         
+        # 1. EMPTY CART CHECK - Updated to return exactly 3 values
         if not self.items:
-            return False, "Your shopping cart is empty."
+            return False, "Your shopping cart is empty.", None
             
         connection = get_connection()
         cursor = connection.cursor()
         
         try:
-            # Force SQLite to actively monitor Foreign Keys
             cursor.execute("PRAGMA foreign_keys = ON;")
             
             # PHASE 1: STOCK VALIDATION LOOP
-            # Check availability for every single item before modifying anything
             for product_id, item_details in self.items.items():
                 cursor.execute(
                     "SELECT name, stock FROM products WHERE id = ?;", 
@@ -70,16 +68,18 @@ class ShoppingCart:
                 )
                 product_record = cursor.fetchone()
                 
+                # 2. MISSING PRODUCT CHECK - Updated to return exactly 3 values
                 if not product_record:
                     connection.close()
-                    return False, f"Product error: '{item_details['name']}' no longer exists in our registry."
+                    return False, f"Product error: '{item_details['name']}' no longer exists in our registry.", None
                 
                 current_db_name, current_stock = product_record
                 requested_qty = item_details['quantity']
                 
+                # 3. INSUFFICIENT STOCK CHECK - Updated to return exactly 3 values
                 if current_stock < requested_qty:
                     connection.close()
-                    return False, f"Insufficient stock for '{current_db_name}'. Available: {current_stock}, Requested: {requested_qty}."
+                    return False, f"Insufficient stock for '{current_db_name}'. Available: {current_stock}, Requested: {requested_qty}.", None
 
             # PHASE 2: INSERT MASTER TRANSACTION RECEIPT
             grand_total = self.get_total()
@@ -87,12 +87,10 @@ class ShoppingCart:
                 "INSERT INTO sales (total_amount) VALUES (?);", 
                 (grand_total,)
             )
-            # Retrieve the autoincremented Primary Key ID issued for this transaction
             parent_sale_id = cursor.lastrowid
             
             # PHASE 3: RECORD BREAKDOWN ITEMS & DEDUCT STOCK
             for product_id, item_details in self.items.items():
-                # Write the line item row
                 cursor.execute(
                     """
                     INSERT INTO sale_items (sale_id, product_id, quantity, price_at_sale)
@@ -101,7 +99,6 @@ class ShoppingCart:
                     (parent_sale_id, product_id, item_details['quantity'], item_details['price'])
                 )
                 
-                # Deduct inventory quantities from the products master record sheet
                 cursor.execute(
                     """
                     UPDATE products 
@@ -111,19 +108,57 @@ class ShoppingCart:
                     (item_details['quantity'], product_id)
                 )
 
-            # Commit the transaction completely if all validations and operations succeed
+            # PHASE 4: SUCCESS CLEANUP AND COMMIT
             connection.commit()
             connection.close()
             
-            # WIPE LOCAL DICTIONARY COMPONENT
             self.clear()
-            return True, f"Checkout processing completed successfully! Transaction ID: #{parent_sale_id}"
+            return True, "Checkout processing completed successfully!", parent_sale_id
 
         except Exception as e:
-            # In case of any unhandled runtime exceptions, rollback changes completely to prevent corrupted logs
+            # PHASE 5: CRITICAL EXCEPTION ROLLBACK - Returns exactly 3 values
             connection.rollback()
             connection.close()
-            return False, f"Critical system error processed during checkout execution: {str(e)}"
+            return False, f"Critical system error processed during checkout execution: {str(e)}", None
+
+def get_invoice_data(sale_id):
+    """Fetches transactional historical records from SQLite tables for a specific sale id."""
+    from inventory.database import get_connection
+    
+    connection = get_connection()
+    cursor = connection.cursor()
+    
+    # 1. Fetch Master Transaction Header Details
+    cursor.execute("SELECT id, timestamp, total_amount FROM sales WHERE id = ?;", (sale_id,))
+    sale_record = cursor.fetchone()
+    
+    if not sale_record:
+        connection.close()
+        return None
+        
+    # 2. Fetch Itemized Breakdown Line Rows joining with products to get product names
+    cursor.execute("""
+        SELECT p.name, si.quantity, si.price_at_sale 
+        FROM sale_items si
+        JOIN products p ON si.product_id = p.id
+        WHERE si.sale_id = ?;
+    """, (sale_id,))
+    
+    item_rows = cursor.fetchall()
+    connection.close()
+    
+    # Pack up raw data into a clean structured dictionary
+    invoice_details = {
+        "sale_id": sale_record[0],
+        "timestamp": sale_record[1],
+        "grand_total": sale_record[2],
+        "products": [
+            {"name": row[0], "quantity": row[1], "price": row[2], "line_total": row[1] * row[2]}
+            for row in item_rows
+        ]
+    }
+    return invoice_details
+
 
 # For testing the file:
 if __name__ == "__main__":
