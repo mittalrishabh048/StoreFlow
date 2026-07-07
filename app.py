@@ -216,39 +216,22 @@ def test_add_to_cart(product_id):
     return redirect('/cart/view')
 
 
-@app.route('/cart/view')
-def test_view_cart():
-    """Temporary diagnostic route to read cart state directly from the cookie session."""
-    # Read the current cookie dataset or default to clean empty structures
+@app.route('/cart')
+def view_cart():
+    """Reads the current session cookie state, hydrates a ShoppingCart engine object, and renders the dynamic UI."""
+    # Read raw cookie dataset or default to clean empty structures
     session_cart_data = session.get('cart', {})
     
+    # Instantiate the cart logic container and hydrate its dictionary state
     cart = ShoppingCart()
     cart.items = session_cart_data
     
-    # Build a plain text readout summary to confirm persistence on-screen
-    cart_items_list = cart.get_all_items()
-    cart_total = cart.get_total()
+    # Extract calculated collections for standard Jinja loops
+    cart_items = cart.get_all_items()
+    grand_total = cart.get_total()
     
-    output = f"<h1>StoreFlow Session Cart Diagnostics Workspace</h1>"
-    output += f"<p>Active Session Key Present: {'Yes' if 'cart' in session else 'No (Empty Base State)'}</p>"
-    output += f"<h3>Current Cart Content Lines:</h3>"
-    
-    if not cart_items_list:
-        output += "<p style='color: #888;'>Your cart is entirely empty.</p>"
-    else:
-        output += "<ul>"
-        for item in cart_items_list:
-            output += f"<li><strong>{item['name']}</strong> - Rs.{item['price']} x {item['quantity']} units</li>"
-        output += "</ul>"
-        
-    output += f"<h2>Aggregated Running Total: Rs.{cart_total}</h2>"
-    output += "<hr>"
-    output += "<p><strong>Test links:</strong> "
-    output += "<a href='/cart/add/1'>Add Keyboard</a> | "
-    output += "<a href='/cart/add/2'>Add Mouse</a> | "
-    output += "<a href='/cart/clear'>Clear Session Cart Data</a></p>"
-    
-    return output
+    # Render the structured HTML view file, passing the dataset variables
+    return render_template('cart.html', cart_items=cart_items, grand_total=grand_total)
 
 
 @app.route('/cart/clear')

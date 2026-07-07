@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    <h2>Customer Shopping Cart</h2>
+    <p style="color: #666;">Review selected inventory items and prepare transaction processing billing receipts below.</p>
+    
+    <hr style="margin-bottom: 20px;">
+
+    {% if not cart_items %}
+        <div style="text-align: center; padding: 40px; border: 1px dashed #ccc; border-radius: 6px; background-color: #fafafa;">
+            <h3 style="color: #555; margin-bottom: 10px;">Your cart is entirely empty</h3>
+            <p style="color: #777; margin-bottom: 20px;">No inventory items have been staged for checkout invoicing yet.</p>
+            <a href="/products" style="background-color: #0066cc; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                Browse Inventory Products
+            </a>
+        </div>
+    {% else %}
+        <table border="1" style="width: 100%; border-collapse: collapse; text-align: left; margin-bottom: 25px;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th style="padding: 12px;">Product Item</th>
+                    <th style="padding: 12px; text-align: right;">Unit Price</th>
+                    <th style="padding: 12px; text-align: center;">Quantity</th>
+                    <th style="padding: 12px; text-align: right;">Line Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                    <tr>
+                        <td style="padding: 12px; font-weight: bold;">{{ item.name }}</td>
+                        <td style="padding: 12px; text-align: right;">${{ "%.2f"|format(item.price) }}</td>
+                        <td style="padding: 12px; text-align: center;">{{ item.quantity }}</td>
+                        <td style="padding: 12px; text-align: right; font-weight: bold;">
+                            ${{ "%.2f"|format(item.price * item.quantity) }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
+            <div>
+                <a href="/products" style="color: #0066cc; text-decoration: none; font-weight: bold;">
+                    ← Continue Adding Products
+                </a>
+            </div>
+            <div style="text-align: right;">
+                <h3 style="margin: 0 0 5px 0; color: #333;">Grand Total Amount:</h3>
+                <span style="font-size: 1.8em; font-weight: bold; color: #137333;">
+                    ${{ "%.2f"|format(grand_total) }}
+                </span>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
