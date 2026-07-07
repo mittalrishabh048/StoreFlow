@@ -24,8 +24,7 @@
         
         <div style="display: flex; flex-direction: column; gap: 5px;">
             <label for="name" style="font-weight: bold;">Product Name:</label>
-            <div style="display: flex; flex-direction: column; gap: 5px;">
-            <label for="name" style="font-weight: bold;">Product Name:</label>
+            
             
             {% if is_edit %}
                 <input type="text" id="name" name="name" value="{{ form_data.name if form_data else '' }}" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; background-color: #eee;" readonly>
@@ -35,7 +34,7 @@
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 5px;">
-            <label for="price" style="font-weight: bold;">Unit Price ($):</label>
+            <label for="price" style="font-weight: bold;">Unit Price (Rs.):</label>
             <input type="text" id="price" name="price" value="{{ form_data.price }}" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
         </div>
 

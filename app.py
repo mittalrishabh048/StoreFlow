@@ -1,6 +1,6 @@
 import os
 import sys
-from flask import Flask, render_template,request,redirect, url_for, flash
+from flask import Flask, render_template,request,redirect, url_for, flash,session
 
 # Ensure the 'src' directory is in the Python search path to allow direct module imports
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -8,6 +8,7 @@ sys.path.append(os.path.join(BASE_DIR, 'src'))
 
 # FIXED: Import your actual InventoryManager class name
 from src.inventory.manager import InventoryManager
+from src.billing.billing import ShoppingCart
 
 # Instantiate the engine constructor
 app = Flask(
@@ -184,6 +185,79 @@ def delete_product_page(product_name):
 
     # GET request: Render the safety confirmation layout view
     return render_template('delete_confirm.html', product_name=product_name)
+
+@app.route('/cart/add/<int:product_id>')
+def test_add_to_cart(product_id):
+    """Temporary testing route to simulate adding an item to our session-backed cart."""
+    # 1. Fetch current cart data out of the user's session, or default to an empty dictionary
+    session_cart_data = session.get('cart', {})
+    
+    # 2. Instantiate a fresh ShoppingCart container object and load it with the session data
+    cart = ShoppingCart()
+    cart.items = session_cart_data
+    
+    # 3. Simulate adding an item (Using static placeholder details for testing)
+    # In later steps, we will query these values dynamically from our SQLite table using the product_id
+    test_names = {1: "Wireless Keyboard", 2: "Ergonomic Mouse", 3: "LED Monitor"}
+    test_prices = {1: 45.99, 2: 29.50, 3: 189.00}
+    
+    item_name = test_names.get(product_id, f"Test Item #{product_id}")
+    item_price = test_prices.get(product_id, 10.00)
+    
+    cart.add_item(product_id=str(product_id), name=item_name, price=item_price, quantity=1)
+    
+    # 4. Critical: Serialize the updated raw dictionary back into the encrypted Flask session cookie
+    session['cart'] = cart.items
+    
+    # Mark the session state as explicitly modified so Flask updates the user's cookie
+    session.modified = True
+    
+    flash(f"Added 1x {item_name} to your session cart!", "success")
+    return redirect('/cart/view')
+
+
+@app.route('/cart/view')
+def test_view_cart():
+    """Temporary diagnostic route to read cart state directly from the cookie session."""
+    # Read the current cookie dataset or default to clean empty structures
+    session_cart_data = session.get('cart', {})
+    
+    cart = ShoppingCart()
+    cart.items = session_cart_data
+    
+    # Build a plain text readout summary to confirm persistence on-screen
+    cart_items_list = cart.get_all_items()
+    cart_total = cart.get_total()
+    
+    output = f"<h1>StoreFlow Session Cart Diagnostics Workspace</h1>"
+    output += f"<p>Active Session Key Present: {'Yes' if 'cart' in session else 'No (Empty Base State)'}</p>"
+    output += f"<h3>Current Cart Content Lines:</h3>"
+    
+    if not cart_items_list:
+        output += "<p style='color: #888;'>Your cart is entirely empty.</p>"
+    else:
+        output += "<ul>"
+        for item in cart_items_list:
+            output += f"<li><strong>{item['name']}</strong> - Rs.{item['price']} x {item['quantity']} units</li>"
+        output += "</ul>"
+        
+    output += f"<h2>Aggregated Running Total: Rs.{cart_total}</h2>"
+    output += "<hr>"
+    output += "<p><strong>Test links:</strong> "
+    output += "<a href='/cart/add/1'>Add Keyboard</a> | "
+    output += "<a href='/cart/add/2'>Add Mouse</a> | "
+    output += "<a href='/cart/clear'>Clear Session Cart Data</a></p>"
+    
+    return output
+
+
+@app.route('/cart/clear')
+def test_clear_cart():
+    """Temporary diagnostic route to simulate wiping out the active browser checkout session."""
+    # Pop drops the 'cart' key out of our session dictionary completely
+    session.pop('cart', None)
+    flash("Session shopping cart data cleared completely.", "success")
+    return redirect('/cart/view')
 
 if __name__ == "__main__":
     app.run(debug=True)
