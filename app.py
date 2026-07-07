@@ -186,36 +186,6 @@ def delete_product_page(product_name):
     # GET request: Render the safety confirmation layout view
     return render_template('delete_confirm.html', product_name=product_name)
 
-@app.route('/cart/add/<int:product_id>')
-def test_add_to_cart(product_id):
-    """Temporary testing route to simulate adding an item to our session-backed cart."""
-    # 1. Fetch current cart data out of the user's session, or default to an empty dictionary
-    session_cart_data = session.get('cart', {})
-    
-    # 2. Instantiate a fresh ShoppingCart container object and load it with the session data
-    cart = ShoppingCart()
-    cart.items = session_cart_data
-    
-    # 3. Simulate adding an item (Using static placeholder details for testing)
-    # In later steps, we will query these values dynamically from our SQLite table using the product_id
-    test_names = {1: "Wireless Keyboard", 2: "Ergonomic Mouse", 3: "LED Monitor"}
-    test_prices = {1: 45.99, 2: 29.50, 3: 189.00}
-    
-    item_name = test_names.get(product_id, f"Test Item #{product_id}")
-    item_price = test_prices.get(product_id, 10.00)
-    
-    cart.add_item(product_id=str(product_id), name=item_name, price=item_price, quantity=1)
-    
-    # 4. Critical: Serialize the updated raw dictionary back into the encrypted Flask session cookie
-    session['cart'] = cart.items
-    
-    # Mark the session state as explicitly modified so Flask updates the user's cookie
-    session.modified = True
-    
-    flash(f"Added 1x {item_name} to your session cart!", "success")
-    return redirect('/cart/view')
-
-
 @app.route('/cart')
 def view_cart():
     """Reads the current session cookie state, hydrates a ShoppingCart engine object, and renders the dynamic UI."""
@@ -233,6 +203,82 @@ def view_cart():
     # Render the structured HTML view file, passing the dataset variables
     return render_template('cart.html', cart_items=cart_items, grand_total=grand_total)
 
+@app.route('/cart/add/<product_name>', methods=['POST'])
+def test_add_to_cart(product_name):
+    """Fetches real item parameters and processes user-specified quantity choices via POST forms."""
+    # 1. Look up the item from your database manager using the clean URL string parameter
+    all_products = manager.get_all_products()
+    target_product = next((p for p in all_products if p.name == product_name), None)
+    
+    if not target_product:
+        flash(f"Error: Product '{product_name}' could not be located in database records.", "error")
+        return redirect(url_for('products_page'))
+        
+    # 2. Extract the user's custom quantity from the incoming form payload
+    try:
+        chosen_quantity = int(request.form.get('quantity', 1))
+        if chosen_quantity <= 0:
+            flash("Quantity must be a valid whole number greater than 0.", "error")
+            return redirect(url_for('products_page'))
+    except (ValueError, TypeError):
+        flash("Invalid quantity count format submitted.", "error")
+        return redirect(url_for('products_page'))
+        
+    # 3. Extract your current session cart dataset
+    session_cart_data = session.get('cart', {})
+    
+    # 4. Instantiate and populate your ShoppingCart logic container
+    cart = ShoppingCart()
+    cart.items = session_cart_data
+    
+    # 5. Use the direct attributes. We pass target_product.name cleanly without extra prefixes!
+    cart.add_item(
+        product_id=str(target_product.id), 
+        name=target_product.name, 
+        price=target_product.price, 
+        quantity=chosen_quantity
+    )
+    
+    # 6. Save back to our encrypted cookie session wrapper
+    session['cart'] = cart.items
+    session.modified = True
+    
+    flash(f"Added {chosen_quantity}x '{target_product.name}' to your shopping cart!", "success")
+    return redirect('/cart')
+
+@app.route('/cart/remove/<product_id>')
+def remove_from_cart(product_id):
+    """Evicts a specific product entry entirely from the session-backed shopping cart."""
+    # 1. Fetch the raw session data dictionary state
+    session_cart_data = session.get('cart', {})
+    
+    # 2. Hydrate our ShoppingCart engine class to leverage its built-in removal method
+    cart = ShoppingCart()
+    cart.items = session_cart_data
+    
+    # Ensure the identifier key parameter matches the format stored in our dictionary keys
+    target_key = str(product_id)
+    
+    # 3. Drop the target row item out of memory
+    if target_key in cart.items:
+        cart.remove_item(target_key)
+        flash("Item removed from your cart successfully.", "success")
+    else:
+        # Fallback safety check in case we are evicting an unindexed text string like "Product chips"
+        # We search by checking if the product item ID or the dictionary key matches the incoming string
+        matched_key = next((k for k, v in cart.items.items() if k == target_key or v.get('name') == product_id), None)
+        if matched_key:
+            cart.remove_item(matched_key)
+            flash("Stale test record cleared from cart.", "success")
+        else:
+            flash("Target item could not be located in your active session.", "error")
+            
+    # 4. Serialize and save the clean collection layout back to the browser session cookie
+    session['cart'] = cart.items
+    session.modified = True
+    
+    # Return the user right back to their clean cart layout overview sheet
+    return redirect('/cart')
 
 @app.route('/cart/clear')
 def test_clear_cart():
@@ -240,7 +286,29 @@ def test_clear_cart():
     # Pop drops the 'cart' key out of our session dictionary completely
     session.pop('cart', None)
     flash("Session shopping cart data cleared completely.", "success")
-    return redirect('/cart/view')
+    return redirect('/cart')
+
+@app.route('/checkout', methods=['POST'])
+def handle_checkout():
+    """Processes session data conversion to permanent records via transaction routines."""
+    session_cart_data = session.get('cart', {})
+    
+    # Hydrate object container representation
+    cart = ShoppingCart()
+    cart.items = session_cart_data
+    
+    # Execute database pipeline
+    success, message = cart.process_checkout()
+    
+    if success:
+        # Update the session cookie storage state since cart items are cleared inside the method
+        session['cart'] = {}
+        session.modified = True
+        flash(message, "success")
+        return redirect(url_for('products_page'))
+    else:
+        flash(message, "error")
+        return redirect('/cart')
 
 if __name__ == "__main__":
     app.run(debug=True)

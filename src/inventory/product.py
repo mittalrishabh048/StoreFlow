@@ -1,5 +1,5 @@
 class Product:
-    def __init__(self, name: str,price: float,category:str,stock: int):
+    def __init__(self, name: str,price: float,category:str,stock: int,id: int = None):
         # 1. Guard Clauses (Validate inputs before assignment)
         if not name.strip():
             raise ValueError("Product name cannot be empty.")
@@ -11,6 +11,7 @@ class Product:
             raise ValueError("Product quantity cannot be negative.")
         
         # 2. Assignment (Only executes if validation passes)
+        self.id=id
         self.name = name.strip()
         self.price = price
         self.category=category.strip()

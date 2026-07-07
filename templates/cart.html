@@ -23,33 +23,52 @@
                     <th style="padding: 12px; text-align: right;">Unit Price</th>
                     <th style="padding: 12px; text-align: center;">Quantity</th>
                     <th style="padding: 12px; text-align: right;">Line Total</th>
+                    <th style="padding: 12px; text-align: center;">Action</th>
                 </tr>
             </thead>
             <tbody>
-                {% for item in cart_items %}
+                {% for key, item in session.get('cart', {}).items() %}
                     <tr>
                         <td style="padding: 12px; font-weight: bold;">{{ item.name }}</td>
-                        <td style="padding: 12px; text-align: right;">${{ "%.2f"|format(item.price) }}</td>
+                        <td style="padding: 12px; text-align: right;">Rs.{{ "%.2f"|format(item.price) }}</td>
                         <td style="padding: 12px; text-align: center;">{{ item.quantity }}</td>
                         <td style="padding: 12px; text-align: right; font-weight: bold;">
-                            ${{ "%.2f"|format(item.price * item.quantity) }}
+                            Rs.{{ "%.2f"|format(item.price * item.quantity) }}
+                        </td>
+                        <td style="padding: 12px; text-align: center;">
+                            <a href="/cart/remove/{{ key }}" style="color: #d93025; text-decoration: none; font-weight: bold; padding: 6px 12px; border: 1px solid #d93025; border-radius: 4px; background-color: #fffdee;">
+                                ✕ Remove
+                            </a>
                         </td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 4px;">
-            <div>
+        <div style="display: flex; justify-content: space-between; align-items: center; background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-radius: 4px; flex-wrap: wrap; gap: 15px;">
+            <div style="display: flex; gap: 15px; align-items: center;">
                 <a href="/products" style="color: #0066cc; text-decoration: none; font-weight: bold;">
-                    ← Continue Adding Products
+                    ← Continue Shopping
+                </a>
+                <span style="color: #ccc;">|</span>
+                <a href="/cart/clear" style="color: #d93025; text-decoration: none; font-weight: bold;" onclick="return confirm('Are you sure you want to completely empty your shopping cart?');">
+                    🗑 Empty Entire Cart
                 </a>
             </div>
-            <div style="text-align: right;">
-                <h3 style="margin: 0 0 5px 0; color: #333;">Grand Total Amount:</h3>
-                <span style="font-size: 1.8em; font-weight: bold; color: #137333;">
-                    ${{ "%.2f"|format(grand_total) }}
-                </span>
+            
+            <div style="display: flex; align-items: center; gap: 25px; text-align: right;">
+                <div style="text-align: right;">
+                    <h3 style="margin: 0 0 5px 0; color: #333;">Grand Total Amount:</h3>
+                    <span style="font-size: 1.8em; font-weight: bold; color: #137333;">
+                        Rs.{{ "%.2f"|format(grand_total) }}
+                    </span>
+                </div>
+                
+                <form method="POST" action="/checkout" style="margin: 0;">
+                    <button type="submit" style="background-color: #137333; color: white; padding: 12px 24px; border: none; border-radius: 4px; font-size: 1.1em; font-weight: bold; cursor: pointer;">
+                        ✓ Process Secure Checkout
+                    </button>
+                </form>
             </div>
         </div>
     {% endif %}

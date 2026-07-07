@@ -25,15 +25,26 @@
                 <td style="padding: 10px;">{{ product.name }}</td>
                 <td style="padding: 10px;">Rs.{{ "%.2f"|format(product.price) }}</td>
                 <td style="padding: 10px;">{{ product.stock }} units</td>
+                
                 <td style="padding: 10px;">
-                    <a href="/edit-product/{{ product.name }}" style="color: #0066cc; text-decoration: none; font-weight: bold;">Edit</a>
-                    <a href="/delete-product/{{ product.name }}" style="color: #d93025; text-decoration: none; font-weight: bold; margin-left: 10px;">Delete</a>
-                </td>
-            </tr>
-            {% else %}
-            <tr>
-                <td colspan="3" style="padding: 10px; text-align: center; color: #888;">
-                    No product records found inside the database warehouse store sheet.
+                    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                        <a href="/edit-product/{{ product.name }}" style="color: #0066cc; text-decoration: none; font-weight: bold;">Edit</a>
+                        
+                        <span style="color: #ccc;">|</span>
+                        
+                        <form method="POST" action="/cart/add/{{ product.name }}" style="display: flex; align-items: center; gap: 6px; margin: 0;">
+                            <label for="qty-{{ product.id }}" style="font-size: 0.9em; color: #555;">Qty:</label>
+                            <input type="number" id="qty-{{ product.id }}" name="quantity" value="1" min="1" max="{{ product.stock }}" style="width: 50px; padding: 4px; border: 1px solid #ccc; border-radius: 4px; text-align: center;" required>
+                            
+                            <button type="submit" style="background-color: #137333; color: white; padding: 5px 10px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.9em;">
+                                + Add to Cart
+                            </button>
+                        </form>
+                        
+                        <span style="color: #ccc;">|</span>
+                        
+                        <a href="/delete-product/{{ product.name }}" style="color: #d93025; text-decoration: none; font-weight: bold;">Delete</a>
+                    </div>
                 </td>
             </tr>
             {% endfor %}

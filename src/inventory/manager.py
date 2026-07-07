@@ -106,7 +106,7 @@ class InventoryManager:
     
     def get_all_products(self):
         """Retrieves rows from SQLite and reconstructs your Product objects."""
-        query = "SELECT name, price, category, stock FROM products"
+        query = "SELECT id,name, price, category, stock FROM products"
         products_list = []
         
         conn = get_connection()
@@ -116,7 +116,7 @@ class InventoryManager:
             rows = cursor.fetchall()
             for row in rows:
                 # Reconstruct your updated Product layout mapping row values cleanly
-                prod = Product(name=row[0], price=row[1], category=row[2], stock=row[3])
+                prod = Product(id=row[0],name=row[1], price=row[2], category=row[3], stock=row[4])
                 products_list.append(prod)
             return products_list
         finally:
