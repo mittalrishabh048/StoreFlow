@@ -288,29 +288,50 @@ def test_clear_cart():
     flash("Session shopping cart data cleared completely.", "success")
     return redirect('/cart')
 
-
 @app.route('/checkout', methods=['POST'])
 def handle_checkout():
-    """Processes session data conversion to permanent records via transaction routines."""
+    from src.billing import billing
+    from src.inventory import database
+    
+    # 1. Grab raw active cart data out of the live session wrapper
     session_cart_data = session.get('cart', {})
-    
-    cart = ShoppingCart()
-    cart.items = session_cart_data
-    
-    # Capture the status, message text, and new parent id tracking reference
-    success, message, sale_id = cart.process_checkout()
-    
-    if success:
-        # Clear local session cookie memory layout
-        session['cart'] = {}
-        session.modified = True
-        flash(message, "success")
-        # Redirect directly to our newly implemented invoice confirmation screen!
-        return redirect(url_for('view_invoice', sale_id=sale_id))
-    else:
-        flash(message, "error")
-        return redirect('/cart')
-
+    if not session_cart_data:
+        flash("Cannot process checkout: Your shopping cart is empty.", "error")
+        return redirect(url_for('view_cart'))
+        
+    try:
+        # 2. Re-compile the raw dictionary session data into structured items
+        # Format required by database: (product_id, quantity, price, tax_placeholder)
+        compiled_cart_items = []
+        total_amount = 0.0
+        
+        for p_id, item_details in session_cart_data.items():
+            qty = int(item_details['quantity'])
+            price = float(item_details['price'])
+            total_amount += qty * price
+            # Append as tuple matching expected unpacked iteration loop variables
+            compiled_cart_items.append((int(p_id), qty, price, 0.00))
+            
+        # 3. Process the master transaction engine and obtain tracking details
+        invoice_meta = billing.complete_checkout(compiled_cart_items, round(total_amount, 2))
+        
+        # 4. CRITICAL SYNC STEP: Retrieve the live saved database snapshot rows!
+        # We reuse your excellent get_invoice_data method from billing.py
+        real_invoice_data = billing.get_invoice_data(invoice_meta["sale_id"])
+        
+        # 5. Inject the missing sequential invoice format field into the dictionary payload
+        real_invoice_data["invoice_number"] = invoice_meta["invoice_number"]
+        
+        # 6. Flash confirmation message and purge session cart storage
+        session.pop('cart', None)
+        flash("Transaction successfully completed!", "success")
+        
+        # 7. Render your template using the exact keys it needs
+        return render_template("invoice.html", invoice=real_invoice_data)
+        
+    except Exception as e:
+        flash(f"Checkout Transaction Failed: {str(e)}", "error")
+        return redirect(url_for('view_cart'))
 
 @app.route('/invoice/<int:sale_id>')
 def view_invoice(sale_id):

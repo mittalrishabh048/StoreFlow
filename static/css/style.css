@@ -54,3 +54,178 @@ footer {
     font-size: 0.9em;
     color: #555;
 }
+
+/* ==========================================================================
+   StoreFlow Professional Invoice Layout Blocks
+   ========================================================================== */
+
+.invoice-wrapper {
+    max-width: 650px; 
+    margin: 30px auto; 
+    padding: 30px; 
+    border: 1px solid #ddd; 
+    border-radius: 8px; 
+    background-color: #ffffff; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.invoice-branding-row {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: flex-start; 
+    margin-bottom: 25px; 
+    border-bottom: 2px solid #333; 
+    padding-bottom: 15px;
+}
+
+.invoice-title {
+    margin: 0; 
+    color: #1a73e8; 
+    letter-spacing: -0.5px;
+}
+
+.invoice-subtitle {
+    margin: 4px 0 0 0; 
+    color: #666; 
+    font-size: 0.95em;
+}
+
+.invoice-meta-right {
+    text-align: right;
+}
+
+.invoice-id {
+    margin: 0; 
+    color: #333;
+}
+
+.invoice-db-ref, .invoice-date {
+    margin: 4px 0 0 0; 
+    color: #777; 
+    font-size: 0.85em;
+}
+
+.invoice-status-msg {
+    color: #333; 
+    font-size: 1.05em; 
+    margin-bottom: 20px;
+}
+
+/* Table Architecture Overrides */
+.invoice-billing-table {
+    width: 100%; 
+    border-collapse: collapse; 
+    text-align: left; 
+    margin-bottom: 25px;
+}
+
+.invoice-billing-table thead tr {
+    border-bottom: 2px solid #ddd; 
+    color: #555; 
+    font-size: 0.95em;
+}
+
+.invoice-billing-table th {
+    padding: 10px 0;
+}
+
+.invoice-billing-table td {
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.item-name { font-weight: bold; color: #333; }
+.item-qty, .item-price { color: #666; }
+.item-total { font-weight: bold; color: #333; }
+
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+/* Totals Box Layout */
+.invoice-totals-wrapper {
+    display: flex; 
+    justify-content: flex-end; 
+    border-top: 2px solid #eee; 
+    padding-top: 15px; 
+    margin-bottom: 30px;
+}
+
+.totals-inner-box {
+    text-align: right; 
+    width: 50%;
+}
+
+.totals-flex-row {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+}
+
+.totals-label {
+    font-weight: bold; 
+    color: #555; 
+    font-size: 1.1em;
+}
+
+.totals-amount {
+    font-size: 1.6em; 
+    font-weight: bold; 
+    color: #137333;
+}
+
+/* User Interactive Elements Layer */
+.invoice-actions-row {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-top: 1px solid #ddd; 
+    padding-top: 20px;
+}
+
+.btn-dashboard-back {
+    background-color: #1a73e8; 
+    color: white; 
+    padding: 10px 20px; 
+    text-decoration: none; 
+    border-radius: 4px; 
+    font-weight: bold; 
+    font-size: 0.95em;
+}
+
+.btn-print-trigger {
+    background-color: #f1f3f4; 
+    color: #333; 
+    padding: 10px 16px; 
+    border: 1px solid #dadce0; 
+    border-radius: 4px; 
+    font-weight: bold; 
+    font-size: 0.95em; 
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   Print Optimization Media Query Blocks
+   ========================================================================== */
+
+@media print {
+    /* Hide structural layout wrappers provided by base.html template */
+    header, nav, footer, .no-print {
+        display: none !important;
+    }
+
+    /* Standardize background contrast for paper formatting */
+    body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        padding: 0;
+    }
+
+    /* Expand the layout bounds safely during native canvas streaming */
+    .invoice-wrapper {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 auto !important;
+        max-width: 100% !important;
+    }
+}

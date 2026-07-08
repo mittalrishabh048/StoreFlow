@@ -1,60 +1,59 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div style="max-width: 650px; margin: 30px auto; padding: 30px; border: 1px solid #ddd; border-radius: 8px; background-color: #ffffff; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+<div class="invoice-wrapper">
     
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; border-bottom: 2px solid #333; padding-bottom: 15px;">
+    <div class="invoice-branding-row">
         <div>
-            <h1 style="margin: 0; color: #1a73e8; letter-spacing: -0.5px;">StoreFlow Invoice</h1>
-            <p style="margin: 4px 0 0 0; color: #666; font-size: 0.95em;">Transactional Sales Receipt Logs</p>
+            <h1 class="invoice-title">StoreFlow Invoice</h1>
+            <p class="invoice-subtitle">Transactional Sales Receipt Logs</p>
         </div>
-        <div style="text-align: right;">
-            <h3 style="margin: 0; color: #333;">Receipt ID: #{{ invoice.sale_id }}</h3>
-            <p style="margin: 4px 0 0 0; color: #777; font-size: 0.85em;">{{ invoice.timestamp }}</p>
+        <div class="invoice-meta-right">
+            <h3 class="invoice-id">Invoice: {{ invoice.invoice_number }}</h3>
+            <p class="invoice-db-ref">Receipt ID: #{{ invoice.sale_id }}</p>
+            <p class="invoice-date">{{ invoice.timestamp }}</p>
         </div>
     </div>
 
-    <p style="color: #333; font-size: 1.05em; margin-bottom: 20px;">
+    <p class="invoice-status-msg">
         ✓ Transaction successfully completed and permanently logged inside our relational database repository ledger sheets.
     </p>
 
-    <table border="0" style="width: 100%; border-collapse: collapse; text-align: left; margin-bottom: 25px;">
+    <table class="invoice-billing-table">
         <thead>
-            <tr style="border-bottom: 2px solid #ddd; color: #555; font-size: 0.95em;">
-                <th style="padding: 10px 0;">Inventory Item Spec</th>
-                <th style="padding: 10px 0; text-align: center;">Qty</th>
-                <th style="padding: 10px 0; text-align: right;">Unit Price</th>
-                <th style="padding: 10px 0; text-align: right;">Subtotal</th>
+            <tr>
+                <th>Inventory Item Spec</th>
+                <th class="text-center">Qty</th>
+                <th class="text-right">Unit Price</th>
+                <th class="text-right">Subtotal</th>
             </tr>
         </thead>
         <tbody>
             {% for item in invoice.products %}
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 12px 0; font-weight: bold; color: #333;">{{ item.name }}</td>
-                    <td style="padding: 12px 0; text-align: center; color: #666;">{{ item.quantity }}</td>
-                    <td style="padding: 12px 0; text-align: right; color: #666;">Rs.{{ "%.2f"|format(item.price) }}</td>
-                    <td style="padding: 12px 0; text-align: right; font-weight: bold; color: #333;">Rs.{{ "%.2f"|format(item.line_total) }}</td>
+                <tr>
+                    <td class="item-name">{{ item.name }}</td>
+                    <td class="text-center item-qty">{{ item.quantity }}</td>
+                    <td class="text-right item-price">Rs.{{ "%.2f"|format(item.price) }}</td>
+                    <td class="text-right item-total">Rs.{{ "%.2f"|format(item.line_total) }}</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <div style="display: flex; justify-content: flex-end; border-top: 2px solid #eee; padding-top: 15px; margin-bottom: 30px;">
-        <div style="text-align: right; width: 50%;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-weight: bold; color: #555; font-size: 1.1em;">Grand Total Settled:</span>
-                <span style="font-size: 1.6em; font-weight: bold; color: #137333;">
-                    Rs.{{ "%.2f"|format(invoice.grand_total) }}
-                </span>
+    <div class="invoice-totals-wrapper">
+        <div class="totals-inner-box">
+            <div class="totals-flex-row">
+                <span class="totals-label">Grand Total Settled:</span>
+                <span class="totals-amount">Rs.{{ "%.2f"|format(invoice.grand_total) }}</span>
             </div>
         </div>
     </div>
 
-    <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #ddd; padding-top: 20px;">
-        <a href="/products" style="background-color: #1a73e8; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 0.95em;">
+    <div class="invoice-actions-row no-print">
+        <a href="/products" class="btn-dashboard-back">
             ← Back to Inventory Dashboard
         </a>
-        <button onclick="window.print();" style="background-color: #f1f3f4; color: #333; padding: 10px 16px; border: 1px solid #dadce0; border-radius: 4px; font-weight: bold; font-size: 0.95em; cursor: pointer;">
+        <button onclick="window.print();" class="btn-print-trigger">
             🖨 Print Invoice Summary
         </button>
     </div>

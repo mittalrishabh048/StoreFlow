@@ -1,3 +1,6 @@
+import sqlite3
+from src.inventory import database
+
 class ShoppingCart:
     def __init__(self):
         """Initializes an empty session shopping cart structure."""
@@ -123,12 +126,13 @@ class ShoppingCart:
 
 def get_invoice_data(sale_id):
     """Fetches transactional historical records from SQLite tables for a specific sale id."""
-    from inventory.database import get_connection
+    from src.inventory.database import get_connection
     
     connection = get_connection()
+    connection.row_factory = sqlite3.Row # Changes lookups to look like named keys!
     cursor = connection.cursor()
     
-    # 1. Fetch Master Transaction Header Details
+    # Fetch Master Transaction Header Details
     cursor.execute("SELECT id, timestamp, total_amount FROM sales WHERE id = ?;", (sale_id,))
     sale_record = cursor.fetchone()
     
@@ -136,7 +140,7 @@ def get_invoice_data(sale_id):
         connection.close()
         return None
         
-    # 2. Fetch Itemized Breakdown Line Rows joining with products to get product names
+    # Fetch Itemized Breakdown Line Rows joining with products to get names
     cursor.execute("""
         SELECT p.name, si.quantity, si.price_at_sale 
         FROM sale_items si
@@ -147,18 +151,59 @@ def get_invoice_data(sale_id):
     item_rows = cursor.fetchall()
     connection.close()
     
-    # Pack up raw data into a clean structured dictionary
+    # Pack up raw database row indexing objects into a clean structured dictionary matching your frontend templates
     invoice_details = {
-        "sale_id": sale_record[0],
-        "timestamp": sale_record[1],
-        "grand_total": sale_record[2],
+        "sale_id": sale_record["id"],
+        "timestamp": sale_record["timestamp"],
+        "grand_total": sale_record["total_amount"],
         "products": [
-            {"name": row[0], "quantity": row[1], "price": row[2], "line_total": row[1] * row[2]}
+            {
+                "name": row["name"], 
+                "quantity": row["quantity"], 
+                "price": row["price_at_sale"], 
+                "line_total": row["quantity"] * row["price_at_sale"]
+            }
             for row in item_rows
         ]
     }
     return invoice_details
 
+def generate_next_invoice_number():
+    """
+    Fetches the latest invoice string and increments the digit counter.
+    Example: 'INV-0004' -> 'INV-0005'
+    """
+    latest = database.get_latest_invoice_number()
+    if not latest:
+        return "INV-0001"
+    
+    try:
+        # Split prefix ('INV') and numerical suffix ('0001')
+        prefix, num_part = latest.split('-')
+        next_num = int(num_part) + 1
+        # Maintain padding format up to 4 digits
+        return f"{prefix}-{next_num:04d}"
+    except (ValueError, IndexError):
+        # Fallback security default if format is unexpectedly broken
+        return "INV-0001"
+
+def complete_checkout(cart_items, total_amount):
+    """
+    Coordinates invoice generation, state evaluation, and historic preservation.
+    """
+    if not cart_items:
+        raise ValueError("Cannot check out an empty cart.")
+        
+    # Generate sequential unique identifier safely
+    next_invoice_num = generate_next_invoice_number()
+    
+    # Save everything securely down to database layer
+    sale_id = database.save_invoice_transaction(next_invoice_num, cart_items, total_amount)
+    
+    return {
+        "sale_id": sale_id,
+        "invoice_number": next_invoice_num
+    }
 
 # For testing the file:
 if __name__ == "__main__":
