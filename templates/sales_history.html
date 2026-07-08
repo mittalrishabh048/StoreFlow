@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="invoice-wrapper">
+    <div class="invoice-branding-row" style="border-bottom: 2px solid #1a73e8;">
+        <div>
+            <h1 class="invoice-title">Sales Order Registry</h1>
+            <p class="invoice-subtitle">Historical Ledger Archives</p>
+        </div>
+        <div class="invoice-actions-row no-print" style="border-top: none; padding-top: 0;">
+            <a href="/" class="btn-dashboard-back" style="background-color: #757070;">
+                ← Dashboard
+            </a>
+        </div>
+    </div>
+
+    {% if not invoices %}
+        <p style="text-align: center; color: #777; padding: 40px 0;">No sales transactions have been executed yet.</p>
+    {% else %}
+        <table class="invoice-billing-table">
+            <thead>
+                <tr style="border-bottom: 2px solid #ddd; color: #333;">
+                    <th>Invoice Num</th>
+                    <th>Date & Time</th>
+                    <th class="text-right">Settled Amount</th>
+                    <th class="text-center no-print">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for inv in invoices %}
+                    <tr>
+                        <td style="font-weight: bold; color: #1a73e8;">{{ inv.invoice_number }}</td>
+                        <td class="item-qty" style="color: #333;">{{ inv.timestamp }}</td>
+                        <td class="text-right" style="font-weight: bold; color: #137333;">
+                            Rs.{{ "%.2f"|format(inv.grand_total) }}
+                        </td>
+                        <td class="text-center no-print" style="padding: 6px 0;">
+                            <a href="/invoice/{{ inv.sale_id }}" class="btn-print-trigger" style="text-decoration: none; display: inline-block; padding: 6px 12px; font-size: 0.85em; background-color: #f1f3f4;">
+                                🔍 View Details
+                            </a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}

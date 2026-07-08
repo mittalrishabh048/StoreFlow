@@ -21,14 +21,15 @@ header strong {
 }
 
 nav a {
-    color: #0066cc;
+    color: #ffffff; /* Changed from #0066cc to white */
     text-decoration: none;
     font-weight: bold;
-    padding: 0 5px;
+    padding: 0 10px;
 }
 
 nav a:hover {
     text-decoration: underline;
+    color: #e2e8f0;
 }
 
 /* Core page content container padding wrapper */

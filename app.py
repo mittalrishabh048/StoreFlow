@@ -333,15 +333,28 @@ def handle_checkout():
         flash(f"Checkout Transaction Failed: {str(e)}", "error")
         return redirect(url_for('view_cart'))
 
+@app.route('/sales')
+def sales_history():
+    """Fetches all previous historical orders and passes them to the index list view."""
+    from src.inventory import database
+    
+    # Fetch the sorted index dataset from our database utility function
+    past_invoices = database.get_all_invoices()
+    return render_template('sales_history.html', invoices=past_invoices)
+
+
 @app.route('/invoice/<int:sale_id>')
 def view_invoice(sale_id):
     """Renders a historical receipt summary view for a verified sale transaction record."""
-    # Leverage our thin controller helper to query the database outside app.py
-    invoice = get_invoice_data(sale_id)
+    from src.billing import billing
     
+    # Call your data utility layer to fetch the snapshot metadata 
+    invoice = billing.get_invoice_data(sale_id)
+    
+    # Handle invalid invoice IDs gracefully
     if not invoice:
-        flash(f"Invoice reference ID #{sale_id} could not be found.", "error")
-        return redirect(url_for('products_page'))
+        flash(f"Invoice reference ID #{sale_id} could not be located in historical archives.", "error")
+        return redirect(url_for('sales_history'))
         
     return render_template('invoice.html', invoice=invoice)
 

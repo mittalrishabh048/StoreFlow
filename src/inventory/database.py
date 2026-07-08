@@ -119,5 +119,30 @@ def save_invoice_transaction(invoice_number, cart_items, total_amount, db_path=D
     finally:
         conn.close()
 
+def get_all_invoices(db_path=DB_PATH):
+    """
+    Queries the database for all recorded master invoices, 
+    sorting them chronologically from newest to oldest.
+    """
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    try:
+        # Sort newest first using DESC on the primary key index or timestamp
+        cursor.execute("SELECT id, invoice_number, timestamp, total_amount FROM sales ORDER BY id DESC")
+        rows = cursor.fetchall()
+        
+        invoices_list = []
+        for row in rows:
+            invoices_list.append({
+                "sale_id": row["id"],
+                "invoice_number": row["invoice_number"],
+                "timestamp": row["timestamp"],
+                "grand_total": row["total_amount"]
+            })
+        return invoices_list
+    finally:
+        conn.close()
+
 if __name__ == "__main__":
     init_db()
