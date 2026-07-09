@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="invoice-wrapper">
-    <div class="invoice-branding-row" style="border-bottom: 2px solid #1a73e8;">
+<div class="invoice-wrapper" style="max-width: 850px;"></div>
+    <div class="invoice-branding-row" style="border-bottom: 2px solid #1a73e8; margin-bottom: 20px;">
         <div>
             <h1 class="invoice-title">Sales Order Registry</h1>
             <p class="invoice-subtitle">Historical Ledger Archives</p>
@@ -14,8 +14,27 @@
         </div>
     </div>
 
+    <form method="GET" action="/sales" class="no-print" style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
+        <div style="flex: 1; min-width: 140px;">
+            <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 5px; color: #555;">Date From</label>
+            <input type="date" name="date_from" value="{{ filters.date_from if filters }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+        </div>
+        <div style="flex: 1; min-width: 140px;">
+            <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 5px; color: #555;">Date To</label>
+            <input type="date" name="date_to" value="{{ filters.date_to if filters }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+        </div>
+        <div style="flex: 1.5; min-width: 180px;">
+            <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 5px; color: #555;">Product Search</label>
+            <input type="text" name="product_name" placeholder="Search item name..." value="{{ filters.product_name if filters }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" class="btn-dashboard-back" style="border: none; padding: 9px 16px; cursor: pointer;">Filter</button>
+            <a href="/sales" class="btn-print-trigger" style="text-decoration: none; padding: 8px 14px; font-size: 0.95em; background-color: #f1f3f4; border: 1px solid #dadce0; border-radius: 4px; display: inline-block; color:#333; font-weight:bold;">Reset</a>
+        </div>
+    </form>
+
     {% if not invoices %}
-        <p style="text-align: center; color: #777; padding: 40px 0;">No sales transactions have been executed yet.</p>
+        <p style="text-align: center; color: #777; padding: 40px 0;">No sales transactions match your current filtering criteria.</p>
     {% else %}
         <table class="invoice-billing-table">
             <thead>

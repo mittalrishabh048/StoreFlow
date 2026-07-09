@@ -119,17 +119,55 @@ def save_invoice_transaction(invoice_number, cart_items, total_amount, db_path=D
     finally:
         conn.close()
 
-def get_all_invoices(db_path=DB_PATH):
+def get_all_invoices(date_from=None, date_to=None, product_name=None, db_path=DB_PATH):
     """
-    Queries the database for all recorded master invoices, 
-    sorting them chronologically from newest to oldest.
+    Queries the database for master invoices, dynamically applying 
+    safe parameterized filters for dates and product names.
     """
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
+    
     try:
-        # Sort newest first using DESC on the primary key index or timestamp
-        cursor.execute("SELECT id, invoice_number, timestamp, total_amount FROM sales ORDER BY id DESC")
+        # Base query pulls distinct sales headers (handles duplicates from product JOINs)
+        query = """
+            SELECT DISTINCT s.id, s.invoice_number, s.timestamp, s.total_amount 
+            FROM sales s
+        """
+        
+        # If filtering by product name, we must JOIN with the breakdown tables
+        if product_name:
+            query += """
+                JOIN sale_items si ON s.id = si.sale_id
+                JOIN products p ON si.product_id = p.id
+            """
+            
+        where_clauses = []
+        params = []
+        
+        # Apply Start Date criteria
+        if date_from:
+            where_clauses.append("s.timestamp >= ?")
+            params.append(f"{date_from} 00:00:00")
+            
+        # Apply End Date criteria
+        if date_to:
+            where_clauses.append("s.timestamp <= ?")
+            params.append(f"{date_to} 23:59:59")
+            
+        # Apply Wildcard Product Name criteria
+        if product_name:
+            where_clauses.append("p.name LIKE ?")
+            params.append(f"%{product_name}%")
+            
+        # Append combined WHERE constraints if filters exist
+        if where_clauses:
+            query += " WHERE " + " AND ".join(where_clauses)
+            
+        # Maintain chronologically ordered sorting layout
+        query += " ORDER BY s.id DESC"
+        
+        cursor.execute(query, tuple(params))
         rows = cursor.fetchall()
         
         invoices_list = []
@@ -141,6 +179,7 @@ def get_all_invoices(db_path=DB_PATH):
                 "grand_total": row["total_amount"]
             })
         return invoices_list
+        
     finally:
         conn.close()
 

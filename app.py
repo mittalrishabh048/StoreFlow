@@ -337,10 +337,27 @@ def handle_checkout():
 def sales_history():
     """Fetches all previous historical orders and passes them to the index list view."""
     from src.inventory import database
+
+    # Capture inputs from URL parameters safely using request.args
+    date_from = request.args.get('date_from', '').strip()
+    date_to = request.args.get('date_to', '').strip()
+    product_name = request.args.get('product_name', '').strip()
     
-    # Fetch the sorted index dataset from our database utility function
-    past_invoices = database.get_all_invoices()
-    return render_template('sales_history.html', invoices=past_invoices)
+    # Pass arguments straight to dynamic query architecture
+    past_invoices = database.get_all_invoices(
+        date_from=date_from or None,
+        date_to=date_to or None,
+        product_name=product_name or None
+    )
+
+    # Preserve filter states back into template so the form fields remain populated
+    filters = {
+        "date_from": date_from,
+        "date_to": date_to,
+        "product_name": product_name
+    }
+    
+    return render_template('sales_history.html', invoices=past_invoices, filters=filters)
 
 
 @app.route('/invoice/<int:sale_id>')
