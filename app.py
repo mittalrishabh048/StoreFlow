@@ -25,8 +25,12 @@ manager = InventoryManager()
 
 @app.route('/')
 def dashboard():
-    """Serves the primary system management user portal interface."""
-    return render_template('dashboard.html')
+    """Serves management interface and aggregates live daily summary analytics statistics."""
+    from src.inventory import database
+    
+    # Grab calculated metrics via SQL aggregates
+    stats = database.get_daily_summary_stats()
+    return render_template('dashboard.html',stats=stats)
 
 
 @app.route('/products')
@@ -374,6 +378,20 @@ def view_invoice(sale_id):
         return redirect(url_for('sales_history'))
         
     return render_template('invoice.html', invoice=invoice)
+
+# Implement the dedicated void route handler
+@app.route('/void_sale/<int:sale_id>', methods=['POST'])
+def handle_void_sale(sale_id):
+    """Processes transactional cancellations and restores inventory."""
+    from src.billing import billing
+    
+    success, message = billing.void_sale(sale_id)
+    if success:
+        flash(message, "success")
+    else:
+        flash(message, "error")
+        
+    return redirect(url_for('sales_history'))
 
 if __name__ == "__main__":
     app.run(debug=True)

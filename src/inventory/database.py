@@ -42,7 +42,8 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             invoice_number TEXT NOT NULL UNIQUE,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-            total_amount REAL NOT NULL
+            total_amount REAL NOT NULL,
+            status TEXT NOT NULL DEFAULT 'ACTIVE'
         )
     """)
 
@@ -131,7 +132,7 @@ def get_all_invoices(date_from=None, date_to=None, product_name=None, db_path=DB
     try:
         # Base query pulls distinct sales headers (handles duplicates from product JOINs)
         query = """
-            SELECT DISTINCT s.id, s.invoice_number, s.timestamp, s.total_amount 
+            SELECT DISTINCT s.id, s.invoice_number, s.timestamp, s.total_amount,s.status
             FROM sales s
         """
         
@@ -176,10 +177,80 @@ def get_all_invoices(date_from=None, date_to=None, product_name=None, db_path=DB
                 "sale_id": row["id"],
                 "invoice_number": row["invoice_number"],
                 "timestamp": row["timestamp"],
-                "grand_total": row["total_amount"]
+                "grand_total": row["total_amount"],
+                "status": row["status"] # FIXED: Pass the status to the template
             })
         return invoices_list
         
+    finally:
+        conn.close()
+
+def void_sale_transaction(sale_id, db_path=DB_PATH):
+    """
+    Validates a transaction status, restores item quantities to product inventory, 
+    and sets the master record state to 'VOID' atomically.
+    """
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    conn.execute("BEGIN TRANSACTION;")
+    cursor = conn.cursor()
+    
+    try:
+        # 1. Validate invoice existence and active status state
+        cursor.execute("SELECT status FROM sales WHERE id = ?", (sale_id,))
+        sale = cursor.fetchone()
+        
+        if not sale:
+            conn.close()
+            return False, "Target sale reference record could not be found."
+        if sale["status"] == "VOID":
+            conn.close()
+            return False, "This transaction has already been voided."
+            
+        # 2. Gather item lists linked to this sale to calculate inventory restoration values
+        cursor.execute("SELECT product_id, quantity FROM sale_items WHERE sale_id = ?", (sale_id,))
+        items = cursor.fetchall()
+        
+        # 3. Process restoration loops across inventory catalog models
+        for item in items:
+            cursor.execute(
+                "UPDATE products SET stock = stock + ? WHERE id = ?",
+                (item["quantity"], item["product_id"])
+            )
+            
+        # 4. Flip master record audit flag safely
+        cursor.execute("UPDATE sales SET status = 'VOID' WHERE id = ?", (sale_id,))
+        
+        conn.commit()
+        return True, "Sale transaction successfully voided and stock restored."
+        
+    except Exception as e:
+        conn.rollback()
+        return False, f"Critical rollback handled during voiding: {str(e)}"
+    finally:
+        conn.close()
+
+def get_daily_summary_stats(db_path=DB_PATH):
+    """
+    Uses SQL aggregation functions to compute today's total revenue 
+    and transaction count for all non-voided sales.
+    """
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    try:
+        # We aggregate only ACTIVE records processed on the current calendar date
+        cursor.execute("""
+            SELECT 
+                COALESCE(SUM(total_amount), 0.0), 
+                COUNT(id) 
+            FROM sales 
+            WHERE status = 'ACTIVE' AND date(timestamp) = date('now', 'localtime')
+        """)
+        row = cursor.fetchone()
+        return {
+            "revenue": row[0],
+            "count": row[1]
+        }
     finally:
         conn.close()
 

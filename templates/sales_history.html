@@ -53,10 +53,20 @@
                         <td class="text-right" style="font-weight: bold; color: #137333;">
                             Rs.{{ "%.2f"|format(inv.grand_total) }}
                         </td>
-                        <td class="text-center no-print" style="padding: 6px 0;">
-                            <a href="/invoice/{{ inv.sale_id }}" class="btn-print-trigger" style="text-decoration: none; display: inline-block; padding: 6px 12px; font-size: 0.85em; background-color: #f1f3f4;">
+                        <td class="text-center no-print" style="padding: 6px 0; display: flex; justify-content: center; gap: 8px; align-items: center;">
+                            <a href="/invoice/{{ inv.sale_id }}" class="btn-print-trigger" style="text-decoration: none; display: inline-block; padding: 6px 12px; font-size: 0.85em; background-color: #f1f3f4; margin: 0;">
                                 🔍 View Details
                             </a>
+                
+                            {% if inv.sale_id in voided_ids or (inv.status and inv.status == 'VOID') or (inv.grand_total == 0 and not inv.status) %}
+                                <span style="background-color: #e6f4ea; color: #137333; padding: 4px 10px; border-radius: 4px; font-size: 0.85em; font-weight: bold; border: 1px solid #137333;">VOID</span>
+                            {% else %}
+                                <form action="/void_sale/{{ inv.sale_id }}" method="POST" style="margin: 0; display: inline-block;" onsubmit="return confirm('Are you sure you want to void this sale? This will instantly restore inventory stock levels.');">
+                                    <button type="submit" style="background-color: #d93025; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 0.85em; cursor: pointer; margin: 0;">
+                                        Void Sale
+                                    </button>
+                                </form>
+                            {% endif %}
                         </td>
                     </tr>
                 {% endfor %}

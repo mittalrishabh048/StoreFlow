@@ -205,6 +205,11 @@ def complete_checkout(cart_items, total_amount):
         "invoice_number": next_invoice_num
     }
 
+def void_sale(sale_id):
+    """Business wrapper layer responsible for triggering transactional sale void procedures."""
+    from src.inventory import database
+    return database.void_sale_transaction(sale_id)
+
 # For testing the file:
 if __name__ == "__main__":
     print("--- STARTING CART BACKEND TESTING DIAGNOSTICS ---")
