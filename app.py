@@ -25,12 +25,29 @@ manager = InventoryManager()
 
 @app.route('/')
 def dashboard():
-    """Serves management interface and aggregates live daily summary analytics statistics."""
+    """Gathers all analytical data frames and updates the administration portal."""
     from src.inventory import database
     
-    # Grab calculated metrics via SQL aggregates
-    stats = database.get_daily_summary_stats()
-    return render_template('dashboard.html',stats=stats)
+    # 1. Load active operational target KPIs
+    kpi_data = database.get_dashboard_kpis()
+    
+    # 2. Poll inventory levels for low stock indicators (Alert threshold set to <= 5 units)
+    low_stock_list = database.get_low_stock_alerts(threshold=5)
+    
+    # 3. Retrieve the top 5 highest velocity moving items
+    top_products = database.get_top_selling_products(limit=5)
+    
+    # 4. Generate the rolling 7-day running revenue logs dataset
+    weekly_trends = database.get_seven_day_revenue_summary()
+    
+    # 5. Pack everything neatly to send straight to the dashboard template engine
+    return render_template(
+        'dashboard.html',
+        kpis=kpi_data,
+        low_stock=low_stock_list,
+        top_products=top_products,
+        weekly_trends=weekly_trends
+    )
 
 
 @app.route('/products')

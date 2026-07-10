@@ -217,3 +217,43 @@ class InventoryManager:
         finally:
             cursor.close()
             conn.close()
+
+    def get_todays_revenue(self):
+        """1. Helper method for today's active transaction revenue."""
+        from src.inventory import database
+        kpis = database.get_dashboard_kpis()
+        return kpis["revenue"]
+
+    def get_todays_sales_count(self):
+        """2. Helper method for today's total active orders count."""
+        from src.inventory import database
+        kpis = database.get_dashboard_kpis()
+        return kpis["sales_count"]
+
+    def get_todays_units_sold(self):
+        """3. Helper method for today's aggregate inventory units sold."""
+        from src.inventory import database
+        kpis = database.get_dashboard_kpis()
+        return kpis["units_sold"]
+
+    def get_top_5_products(self):
+        """4. Helper method for the top 5 best-selling products panel."""
+        from src.inventory import database
+        return database.get_top_selling_products(limit=5)
+
+    def get_7_day_revenue_summary(self):
+        """5. Helper method for the 7-day chronological revenue summary trends."""
+        from src.inventory import database
+        return database.get_seven_day_revenue_summary()
+
+    def get_low_stock_count(self):
+        """6. Helper method for low-stock widget tracking count."""
+        from src.inventory import database
+        # Reuses the warning array to calculate the total count of endangered products
+        alerts = database.get_low_stock_alerts(threshold=5)
+        return len(alerts)
+
+    def get_low_stock_items(self):
+        """7. Additional helper method to pull the detailed low-stock items list."""
+        from src.inventory import database
+        return database.get_low_stock_alerts(threshold=5)

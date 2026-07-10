@@ -254,5 +254,104 @@ def get_daily_summary_stats(db_path=DB_PATH):
     finally:
         conn.close()
 
+def get_dashboard_kpis(db_path=DB_PATH):
+    """
+    Computes today's core operational metrics: Revenue, Sales Volume, 
+    and total individual units moved, ignoring voided transactions.
+    """
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    try:
+        # 1. Today's Revenue & Sales Count
+        cursor.execute("""
+            SELECT COALESCE(SUM(total_amount), 0.0), COUNT(id)
+            FROM sales
+            WHERE status = 'ACTIVE' AND date(timestamp) = date('now', 'localtime')
+        """)
+        rev_row = cursor.fetchone()
+        today_revenue = rev_row[0]
+        today_sales_count = rev_row[1]
+
+        # 2. Today's Total Units Sold
+        cursor.execute("""
+            SELECT COALESCE(SUM(si.quantity), 0)
+            FROM sale_items si
+            JOIN sales s ON si.sale_id = s.id
+            WHERE s.status = 'ACTIVE' AND date(s.timestamp) = date('now', 'localtime')
+        """)
+        today_units_sold = cursor.fetchone()[0]
+
+        return {
+            "revenue": today_revenue,
+            "sales_count": today_sales_count,
+            "units_sold": today_units_sold
+        }
+    finally:
+        conn.close()
+
+
+def get_low_stock_alerts(threshold=5, db_path=DB_PATH):
+    """
+    Scans the inventory registry for any items whose remaining quantity 
+    has dropped below the critical threshold level.
+    """
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT id, name, stock FROM products WHERE stock <= ?", (threshold,))
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
+
+def get_top_selling_products(limit=5, db_path=DB_PATH):
+    """
+    Aggregates overall unit sales numbers per product to extract the 
+    top-performing inventory catalog items.
+    """
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            SELECT p.name, SUM(si.quantity) as total_qty, SUM(si.quantity * si.price_at_sale) as total_sales
+            FROM sale_items si
+            JOIN products p ON si.product_id = p.id
+            JOIN sales s ON si.sale_id = s.id
+            WHERE s.status = 'ACTIVE'
+            GROUP BY si.product_id
+            ORDER BY total_qty DESC
+            LIMIT ?
+        """, (limit,))
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
+
+def get_seven_day_revenue_summary(db_path=DB_PATH):
+    """
+    Generates a daily breakdown list spanning the last 7 calendar days 
+    to construct chronological sales trend lines.
+    """
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    try:
+        # Generates a rolling window of the past 7 days dynamically via SQL date offsets
+        cursor.execute("""
+            SELECT date(timestamp) as sale_date, COALESCE(SUM(total_amount), 0.0) as daily_revenue
+            FROM sales
+            WHERE status = 'ACTIVE' AND date(timestamp) >= date('now', '-6 days', 'localtime')
+            GROUP BY sale_date
+            ORDER BY sale_date DESC
+        """)
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
 if __name__ == "__main__":
     init_db()
