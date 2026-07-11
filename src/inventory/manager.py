@@ -300,3 +300,53 @@ class InventoryManager:
             "total_transactions": total_transactions,
             "avg_order_value": avg_order_value
         }
+
+    def generate_inventory_csv(self):
+        """Builds a formatted CSV text stream summarizing active product capital assets."""
+        import csv
+        import io
+        
+        # Pull live product data metrics
+        report_data = self.generate_inventory_report()
+        
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Write structural header line metadata
+        writer.writerow(["Product ID", "Product Name", "Category", "Unit Price (Rs.)", "Available Stock", "Total Valuation (Rs.)"])
+        
+        # Write data breakdown rows
+        for p in report_data["products"]:
+            writer.writerow([p["id"], p["name"], p["category"], f"{p['price']:.2f}", p["stock"], f"{p['total_value']:.2f}"])
+            
+        # Write summation footer block
+        writer.writerow([])
+        writer.writerow(["", "", "", "", "Grand Total Value:", f"{report_data['grand_total']:.2f}"])
+        
+        return output.getvalue()
+
+    def generate_sales_csv(self, start_date=None, end_date=None):
+        """Constructs a formatted CSV text stream bounded by calendar search constraints."""
+        import csv
+        import io
+        
+        # Pull transactional history matching parameters
+        report_data = self.generate_sales_report(start_date, end_date)
+        
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Write header metadata
+        writer.writerow(["Invoice Number", "Execution Timestamp", "Settled Amount (Rs.)"])
+        
+        # Write data rows
+        for o in report_data["orders"]:
+            writer.writerow([o["invoice_number"], o["timestamp"], f"{o['total_amount']:.2f}"])
+            
+        # Write statistical operational summary footer block
+        writer.writerow([])
+        writer.writerow(["Total Orders Count:", report_data["total_transactions"], ""])
+        writer.writerow(["Total Billed Revenue:", f"{report_data['total_revenue']:.2f}", ""])
+        writer.writerow(["Average Basket Ticket Value:", f"{report_data['avg_order_value']:.2f}", ""])
+        
+        return output.getvalue()

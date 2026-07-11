@@ -10,6 +10,9 @@
         <div class="invoice-actions-row no-print" style="border-top: none; padding-top: 0;">
             <a href="/" class="btn-dashboard-back" style="background-color: #757070;">← Dashboard</a>
             <button onclick="window.print();" class="btn-print-trigger" style="margin-left:10px;">🖨 Print Report</button>
+            <a href="/report/sales/csv?start_date={{ filters.start_date }}&end_date={{ filters.end_date }}" class="btn-print-trigger" style="text-decoration:none; margin-left:10px; background-color:#137333; color:white;">
+                📥 Export Filtered CSV
+            </a>
         </div>
     </div>
 

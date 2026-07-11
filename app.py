@@ -1,6 +1,6 @@
 import os
 import sys
-from flask import Flask, render_template,request,redirect, url_for, flash,session
+from flask import Flask, render_template,request,redirect, url_for, flash,session,Response
 
 # Ensure the 'src' directory is in the Python search path to allow direct module imports
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
@@ -429,6 +429,45 @@ def sales_report_page():
     
     filters = {"start_date": start_date, "end_date": end_date}
     return render_template('sales_report.html', report=report_data, filters=filters)
+
+@app.route('/report/inventory/csv')
+def export_inventory_csv():
+    """Generates and drops a standard structural inventory evaluation spreadsheet."""
+    csv_data = manager.generate_inventory_csv()
+    
+    # Return raw text wrapped securely in a downloadable response envelope context layout
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-Disposition": "attachment; filename=inventory_report.csv"}
+    )
+
+@app.route('/report/sales/csv')
+def export_sales_csv():
+    """Generates and matches sales metrics with custom range boundary filenames."""
+    start_date = request.args.get('start_date', '').strip()
+    end_date = request.args.get('end_date', '').strip()
+    
+    csv_data = manager.generate_sales_csv(
+        start_date=start_date or None,
+        end_date=end_date or None
+    )
+    
+    # Generate a professional dynamic filename based on active user parameters
+    if start_date and end_date:
+        filename = f"sales_{start_date}_to_{end_date}.csv"
+    elif start_date:
+        filename = f"sales_from_{start_date}.csv"
+    elif end_date:
+        filename = f"sales_until_{end_date}.csv"
+    else:
+        filename = "sales_report_all.csv"
+        
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={"Content-Disposition": f"attachment; filename={filename}"}
+    )
 
 if __name__ == "__main__":
     app.run(debug=True)
