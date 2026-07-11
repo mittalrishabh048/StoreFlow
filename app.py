@@ -410,5 +410,25 @@ def handle_void_sale(sale_id):
         
     return redirect(url_for('sales_history'))
 
+@app.route('/report/inventory')
+def inventory_report_page():
+    """Renders current stock status levels and capital asset valuations."""
+    report_data = manager.generate_inventory_report()
+    return render_template('inventory_report.html', report=report_data)
+
+@app.route('/report/sales')
+def sales_report_page():
+    """Processes dynamic transaction summaries with active query string boundaries."""
+    start_date = request.args.get('start_date', '').strip()
+    end_date = request.args.get('end_date', '').strip()
+    
+    report_data = manager.generate_sales_report(
+        start_date=start_date or None,
+        end_date=end_date or None
+    )
+    
+    filters = {"start_date": start_date, "end_date": end_date}
+    return render_template('sales_report.html', report=report_data, filters=filters)
+
 if __name__ == "__main__":
     app.run(debug=True)

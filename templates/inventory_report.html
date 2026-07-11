@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="invoice-wrapper" style="max-width: 900px; margin: 30px auto;">
+    <div class="invoice-branding-row" style="border-bottom: 2px solid #1a73e8; margin-bottom: 20px;">
+        <div>
+            <h1 class="invoice-title">Inventory Valuation Ledger</h1>
+            <p class="invoice-subtitle">Stock Capital Financial Assessment Report</p>
+        </div>
+        <div class="invoice-actions-row no-print" style="border-top: none; padding-top: 0;">
+            <a href="/" class="btn-dashboard-back" style="background-color: #757070;">← Dashboard</a>
+            <button onclick="window.print();" class="btn-print-trigger" style="margin-left:10px;">🖨 Print Summary</button>
+        </div>
+    </div>
+
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 25px; text-align: center;">
+        <span style="text-transform: uppercase; font-size: 0.85em; font-weight: bold; color: #718096; display: block; margin-bottom: 5px;">Grand Total Inventory Value Asset</span>
+        <h2 style="margin: 0; color: #1a73e8; font-size: 2.2em;">Rs.{{ "%.2f"|format(report.grand_total) }}</h2>
+    </div>
+
+    {% if not report.products %}
+        <p style="text-align: center; color: #777; padding: 40px 0;">No items are registered in the current product warehouse catalog database.</p>
+    {% else %}
+        <table class="invoice-billing-table">
+            <thead>
+                <tr style="border-bottom: 2px solid #ddd; color: #333;">
+                    <th>Product Name</th>
+                    <th>Category Item Type</th>
+                    <th class="text-right">Unit Value Cost</th>
+                    <th class="text-center">Available Stock</th>
+                    <th class="text-right">Total Net Wealth</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prod in report.products %}
+                    <tr style="border-bottom: 1px solid #edf2f7;">
+                        <td style="font-weight: bold; color: #2b6cb0;">{{ prod.name }}</td>
+                        <td style="color: #4a5568;">{{ prod.category }}</td>
+                        <td class="text-right">Rs.{{ "%.2f"|format(prod.price) }}</td>
+                        <td class="text-center" style="font-weight: bold;">{{ prod.stock }} units</td>
+                        <td class="text-right" style="font-weight: bold; color: #2f855a;">Rs.{{ "%.2f"|format(prod.total_value) }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}

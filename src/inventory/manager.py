@@ -257,3 +257,46 @@ class InventoryManager:
         """7. Additional helper method to pull the detailed low-stock items list."""
         from src.inventory import database
         return database.get_low_stock_alerts(threshold=5)
+
+    def generate_inventory_report(self):
+        """Processes product details and aggregates global warehouse financial values."""
+        from src.inventory import database
+        raw_items = database.get_inventory_report_data()
+        
+        processed_products = []
+        grand_total_value = 0.0
+        
+        for item in raw_items:
+            line_value = round(item["stock"] * item["price"], 2)
+            grand_total_value += line_value
+            processed_products.append({
+                "id": item["id"],
+                "name": item["name"],
+                "category": item["category"],
+                "price": item["price"],
+                "stock": item["stock"],
+                "total_value": line_value
+            })
+            
+        return {
+            "products": processed_products,
+            "grand_total": round(grand_total_value, 2)
+        }
+
+    def generate_sales_report(self, start_date=None, end_date=None):
+        """Calculates revenue run-rates, order volume counts, and overall transactional averages."""
+        from src.inventory import database
+        orders = database.get_sales_report_data(start_date, end_date)
+        
+        total_revenue = sum(order["total_amount"] for order in orders)
+        total_transactions = len(orders)
+        
+        # Guard against division by zero if no sales exist inside the boundary parameters
+        avg_order_value = round(total_revenue / total_transactions, 2) if total_transactions > 0 else 0.0
+        
+        return {
+            "orders": orders,
+            "total_revenue": round(total_revenue, 2),
+            "total_transactions": total_transactions,
+            "avg_order_value": avg_order_value
+        }

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="invoice-wrapper" style="max-width: 950px; margin: 30px auto;">
+    <div class="invoice-branding-row" style="border-bottom: 2px solid #1a73e8; margin-bottom: 20px;">
+        <div>
+            <h1 class="invoice-title">Sales Performance Analysis</h1>
+            <p class="invoice-subtitle">Historical Revenue Run-Rate Report Logs</p>
+        </div>
+        <div class="invoice-actions-row no-print" style="border-top: none; padding-top: 0;">
+            <a href="/" class="btn-dashboard-back" style="background-color: #757070;">← Dashboard</a>
+            <button onclick="window.print();" class="btn-print-trigger" style="margin-left:10px;">🖨 Print Report</button>
+        </div>
+    </div>
+
+    <form method="GET" action="/report/sales" class="no-print" style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 15px; align-items: flex-end;">
+        <div style="flex: 1; min-width: 140px;">
+            <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 5px; color: #555;">Date From</label>
+            <input type="date" name="start_date" value="{{ filters.start_date }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        <div style="flex: 1; min-width: 140px;">
+            <label style="display: block; font-size: 0.85em; font-weight: bold; margin-bottom: 5px; color: #555;">Date To</label>
+            <input type="date" name="end_date" value="{{ filters.end_date }}" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" class="btn-dashboard-back" style="border: none; padding: 9px 16px; cursor: pointer;">Generate Report</button>
+            <a href="/report/sales" class="btn-print-trigger" style="text-decoration: none; padding: 8px 14px; font-size: 0.95em; background-color: #f1f3f4; border: 1px solid #dadce0; border-radius: 4px; display: inline-block; color:#333; font-weight:bold;">Reset</a>
+        </div>
+    </form>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px;">
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #edf2f7; text-align: center;">
+            <span style="font-size: 0.8em; font-weight: bold; color: #718096; text-transform: uppercase;">Total Billed Revenue</span>
+            <h3 style="margin: 5px 0 0 0; color: #2f855a; font-size: 1.6em;">Rs.{{ "%.2f"|format(report.total_revenue) }}</h3>
+        </div>
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #edf2f7; text-align: center;">
+            <span style="font-size: 0.8em; font-weight: bold; color: #718096; text-transform: uppercase;">Billed Volume Count</span>
+            <h3 style="margin: 5px 0 0 0; color: #2b6cb0; font-size: 1.6em;">{{ report.total_transactions }} Orders</h3>
+        </div>
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #edf2f7; text-align: center;">
+            <span style="font-size: 0.8em; font-weight: bold; color: #718096; text-transform: uppercase;">Average Basket Ticket</span>
+            <h3 style="margin: 5px 0 0 0; color: #4a5568; font-size: 1.6em;">Rs.{{ "%.2f"|format(report.avg_order_value) }}</h3>
+        </div>
+    </div>
+
+    {% if not report.orders %}
+        <p style="text-align: center; color: #777; padding: 40px 0;">No active verified transactions match your selected report query scope.</p>
+    {% else %}
+        <table class="invoice-billing-table">
+            <thead>
+                <tr style="border-bottom: 2px solid #ddd; color: #333;">
+                    <th>Invoice ID Number</th>
+                    <th>Execution Timestamp</th>
+                    <th class="text-right">Settled Amount Sum</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in report.orders %}
+                    <tr style="border-bottom: 1px solid #edf2f7;">
+                        <td style="font-weight: bold; color: #1a73e8;">{{ order.invoice_number }}</td>
+                        <td style="color: #4a5568;">{{ order.timestamp }}</td>
+                        <td class="text-right" style="font-weight: bold; color: #2f855a;">Rs.{{ "%.2f"|format(order.total_amount) }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+{% endblock %}

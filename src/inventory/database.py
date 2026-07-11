@@ -353,5 +353,40 @@ def get_seven_day_revenue_summary(db_path=DB_PATH):
     finally:
         conn.close()
 
+def get_inventory_report_data(db_path=DB_PATH):
+    """Queries the complete list of inventory items to build financial valuation metrics."""
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT id, name, category, price, stock FROM products ORDER BY name ASC")
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
+def get_sales_report_data(start_date=None, end_date=None, db_path=DB_PATH):
+    """Retrieves transactional logs bounded by optional calendar parameters, omitting voids."""
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    try:
+        query = "SELECT id, invoice_number, timestamp, total_amount FROM sales WHERE status = 'ACTIVE'"
+        params = []
+        
+        if start_date:
+            query += " AND timestamp >= ?"
+            params.append(f"{start_date} 00:00:00")
+        if end_date:
+            query += " AND timestamp <= ?"
+            params.append(f"{end_date} 23:59:59")
+            
+        query += " ORDER BY id DESC"
+        cursor.execute(query, tuple(params))
+        rows = cursor.fetchall()
+        return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
 if __name__ == "__main__":
     init_db()
