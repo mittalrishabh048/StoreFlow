@@ -10,26 +10,36 @@ body {
 
 /* Format our global layout headers and navigation tabs */
 header {
-    background-color: #1E40AF;
-    padding: 15px;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    background-color: #1a73e8;
+    padding: 12px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 header strong {
     color: white;
 }
 
+
+nav .nav-links-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 20px; 
+}
+
+
 nav a {
-    color: #ffffff; /* Changed from #0066cc to white */
+    color: #ffffff !important;
     text-decoration: none;
-    font-weight: bold;
-    padding: 0 10px;
+    font-weight: 500;
+    font-size: 0.95em;
+    padding: 6px 10px;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
 }
 
 nav a:hover {
-    text-decoration: underline;
-    color: #e2e8f0;
+    background-color: rgba(255, 255, 255, 0.15);
+    text-decoration: none;
 }
 
 /* Core page content container padding wrapper */
