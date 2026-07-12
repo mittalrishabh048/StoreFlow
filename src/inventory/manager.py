@@ -350,3 +350,21 @@ class InventoryManager:
         writer.writerow(["Average Basket Ticket Value:", f"{report_data['avg_order_value']:.2f}", ""])
         
         return output.getvalue()
+
+    def authenticate_user(self, username, plain_password):
+        """
+        Validates login parameters by retrieving the target record 
+        and passing it through cryptographic verification checks.
+        """
+        from src.inventory import database
+        from werkzeug.security import check_password_hash
+        
+        user = database.get_user_by_username(username.strip())
+        if not user:
+            return False, "Invalid username configuration entered."
+            
+        # Verify incoming plain text against the salted cryptographic hash string
+        if check_password_hash(user["password"], plain_password):
+            return True, "Authentication verified successfully."
+            
+        return False, "Incorrect security credential password provided."

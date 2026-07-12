@@ -1,5 +1,6 @@
 import sqlite3
 import os
+from werkzeug.security import generate_password_hash, check_password_hash
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -60,6 +61,21 @@ def init_db():
         )
     """)
     
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            password TEXT NOT NULL
+        )
+    """)
+
+    cursor.execute("SELECT COUNT(*) FROM users")
+    if cursor.fetchone()[0] == 0:
+        # Securely hash the baseline default password string 'admin123'
+        hashed_pw = generate_password_hash('admin123')
+        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", ('admin', hashed_pw))
+        print("[DATABASE SUCCESS] Default admin user successfully seeded.")
+
     connection.commit()
     connection.close()
     print("[DATABASE SUCCESS] All relational tables (products, sales, sale_items) initialized.")
@@ -385,6 +401,18 @@ def get_sales_report_data(start_date=None, end_date=None, db_path=DB_PATH):
         cursor.execute(query, tuple(params))
         rows = cursor.fetchall()
         return [dict(row) for row in rows]
+    finally:
+        conn.close()
+
+def get_user_by_username(username, db_path=DB_PATH):
+    """Queries the user records table for a matching username string profile."""
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT id, username, password FROM users WHERE username = ?", (username,))
+        row = cursor.fetchone()
+        return dict(row) if row else None
     finally:
         conn.close()
 

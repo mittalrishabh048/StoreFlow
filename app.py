@@ -469,5 +469,24 @@ def export_sales_csv():
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
 
+@app.route('/login', methods=['GET', 'POST'])
+def login_route():
+    """Handles template presentation and session validation for system access authentication."""
+    if request.method == 'POST':
+        username = request.form.get('username', '')
+        password = request.form.get('password', '')
+        
+        success, message = manager.authenticate_user(username, password)
+        if success:
+            # Seed secure tracking context parameters into Flask session cookies
+            session['logged_in'] = True
+            session['username'] = username.strip()
+            flash("Welcome back! System access verification approved.", "success")
+            return redirect(url_for('dashboard'))
+        else:
+            flash(message, "error")
+            
+    return render_template('login.html')
+
 if __name__ == "__main__":
     app.run(debug=True)
