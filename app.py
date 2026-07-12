@@ -22,27 +22,36 @@ app.secret_key = 'storeflow_secure_session_encryption_bypass_key'
 # FIXED: Initialize without passing db_path, since your __init__ handles it internally
 manager = InventoryManager()
 
+@app.before_request
+def lock_protected_routes():
+    """Global route guard checking session variables before serving protected views."""
+    # List of public endpoints that anyone can access without being logged in
+    public_endpoints = ['login_route', 'static']
+    
+    # If the user is trying to access a protected page and is NOT logged in, redirect them
+    if request.endpoint not in public_endpoints and not session.get('logged_in'):
+        flash("Unauthorized access. Please log in first.", "error")
+        return redirect(url_for('login_route'))
+
 
 @app.route('/')
 def dashboard():
     """Gathers all analytical data frames and updates the administration portal."""
     from src.inventory import database
-    
-    # 1. Load active operational target KPIs
+    today_revenue = manager.get_todays_revenue()
+    today_sales_count = manager.get_todays_sales_count()
+    today_units_sold = manager.get_todays_units_sold()
     kpi_data = database.get_dashboard_kpis()
-    
-    # 2. Poll inventory levels for low stock indicators (Alert threshold set to <= 5 units)
     low_stock_list = database.get_low_stock_alerts(threshold=5)
-    
-    # 3. Retrieve the top 5 highest velocity moving items
     top_products = database.get_top_selling_products(limit=5)
-    
-    # 4. Generate the rolling 7-day running revenue logs dataset
     weekly_trends = database.get_seven_day_revenue_summary()
     
     # 5. Pack everything neatly to send straight to the dashboard template engine
     return render_template(
         'dashboard.html',
+        revenue=today_revenue,
+        sales_count=today_sales_count,
+        units_sold=today_units_sold,
         kpis=kpi_data,
         low_stock=low_stock_list,
         top_products=top_products,
@@ -487,6 +496,13 @@ def login_route():
             flash(message, "error")
             
     return render_template('login.html')
+
+@app.route('/logout')
+def logout_route():
+    """Clears the active user session and redirects back to the login screen."""
+    session.clear()
+    flash("You have been signed out successfully.", "success")
+    return redirect(url_for('login_route'))
 
 if __name__ == "__main__":
     app.run(debug=True)

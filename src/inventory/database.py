@@ -60,7 +60,7 @@ def init_db():
             FOREIGN KEY (product_id) REFERENCES products (id)
         )
     """)
-    
+
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -72,8 +72,8 @@ def init_db():
     cursor.execute("SELECT COUNT(*) FROM users")
     if cursor.fetchone()[0] == 0:
         # Securely hash the baseline default password string 'admin123'
-        hashed_pw = generate_password_hash('admin123')
-        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", ('admin', hashed_pw))
+        hashed_pw = generate_password_hash('admin_1')
+        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", ('Rishabh(Admin)', hashed_pw))
         print("[DATABASE SUCCESS] Default admin user successfully seeded.")
 
     connection.commit()
@@ -275,15 +275,20 @@ def get_dashboard_kpis(db_path=DB_PATH):
     Computes today's core operational metrics: Revenue, Sales Volume, 
     and total individual units moved, ignoring voided transactions.
     """
+    import datetime
     conn = sqlite3.connect(db_path)
     cursor = conn.cursor()
     try:
+        # Get today's exact date directly from Python (Format: 'YYYY-MM-DD')
+        today_str = datetime.date.today().isoformat()
+
         # 1. Today's Revenue & Sales Count
         cursor.execute("""
             SELECT COALESCE(SUM(total_amount), 0.0), COUNT(id)
             FROM sales
-            WHERE status = 'ACTIVE' AND date(timestamp) = date('now', 'localtime')
-        """)
+            WHERE status = 'ACTIVE' AND date(timestamp) = ?
+            """, (today_str,)
+            )
         rev_row = cursor.fetchone()
         today_revenue = rev_row[0]
         today_sales_count = rev_row[1]
@@ -293,7 +298,7 @@ def get_dashboard_kpis(db_path=DB_PATH):
             SELECT COALESCE(SUM(si.quantity), 0)
             FROM sale_items si
             JOIN sales s ON si.sale_id = s.id
-            WHERE s.status = 'ACTIVE' AND date(s.timestamp) = date('now', 'localtime')
+            WHERE s.status = 'ACTIVE' AND date(replace(s.timestamp, '/', '-')) = date('now', 'localtime')
         """)
         today_units_sold = cursor.fetchone()[0]
 
