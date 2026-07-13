@@ -333,18 +333,14 @@ def get_dashboard_kpis(db_path=DB_PATH):
         conn.close()
 
 
-def get_low_stock_alerts(threshold=5, db_path=DB_PATH):
-    """
-    Scans the inventory registry for any items whose remaining quantity 
-    has dropped below the critical threshold level.
-    """
+def get_low_stock_alerts(threshold, db_path=DB_PATH):
+    """Queries product inventory tables for stock levels below the configured settings limit."""
     conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     try:
-        cursor.execute("SELECT id, name, stock FROM products WHERE stock <= ?", (threshold,))
+        cursor.execute("SELECT id, name, stock FROM products WHERE stock <= ?", (int(threshold),))
         rows = cursor.fetchall()
-        return [dict(row) for row in rows]
+        return [{"id": r[0], "name": r[1], "stock": r[2]} for r in rows]
     finally:
         conn.close()
 

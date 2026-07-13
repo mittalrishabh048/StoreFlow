@@ -29,11 +29,11 @@
             <tbody>
                 {% for key, item in session.get('cart', {}).items() %}
                     <tr>
-                        <td style="padding: 12px; font-weight: bold;">{{ item.name }}</td>
-                        <td style="padding: 12px; text-align: right;">Rs.{{ "%.2f"|format(item.price) }}</td>
-                        <td style="padding: 12px; text-align: center;">{{ item.quantity }}</td>
+                        <td style="padding: 12px; font-weight: bold;">{{ item['name'] }}</td>
+                        <td style="padding: 12px; text-align: right;">{{ settings.currency }}{{ "%.2f"|format(item['price']|float) }}</td>
+                        <td style="padding: 12px; text-align: center;">{{ item['quantity'] }}</td>
                         <td style="padding: 12px; text-align: right; font-weight: bold;">
-                            Rs.{{ "%.2f"|format(item.price * item.quantity) }}
+                            {{ settings.currency }}{{ "%.2f"|format((item['price']|float) * (item['quantity']|int)) }}
                         </td>
                         <td style="padding: 12px; text-align: center;">
                             <a href="/cart/remove/{{ key }}" style="color: #d93025; text-decoration: none; font-weight: bold; padding: 6px 12px; border: 1px solid #d93025; border-radius: 4px; background-color: #fffdee;">
@@ -60,7 +60,7 @@
                 <div style="text-align: right;">
                     <h3 style="margin: 0 0 5px 0; color: #333;">Grand Total Amount:</h3>
                     <span style="font-size: 1.8em; font-weight: bold; color: #137333;">
-                        Rs.{{ "%.2f"|format(grand_total) }}
+                        {{ settings.currency }}{{ "%.2f"|format(cart_total if cart_total else 0.0) }}
                     </span>
                 </div>
                 

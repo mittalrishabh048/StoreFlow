@@ -33,19 +33,49 @@ def lock_protected_routes():
         flash("Unauthorized access. Please log in first.", "error")
         return redirect(url_for('login_route'))
 
+@app.context_processor
+def inject_global_settings():
+    """Automatically injects the live database settings into every single HTML template."""
+    try:
+        current_configs = manager.get_system_settings()
+        return dict(settings=current_configs)
+    except Exception as e:
+        # Secure fallback block to prevent app crashes if the database table isn't fully ready
+        print(f"[CONTEXT PROCESSOR ERROR] Fallback applied. Reason: {e}")
+        return dict(settings={
+            "store_name": "StoreFlow Retail",
+            "address": "",
+            "phone": "",
+            "email": "",
+            "currency": "Rs.",
+            "tax_rate": 0.0,
+            "low_stock_threshold": 5
+        })
 
 @app.route('/')
 def dashboard():
     """Gathers all analytical data frames and updates the administration portal."""
     from src.inventory import database
+    # ❌ DELETE OR REMOVE THIS LINE IF IT IS PRESENT: from src.inventory import manager
+    
+    # 1. Fetch current live system configuration options using your global instance
+    current_settings = manager.get_system_settings()
+    alert_limit = current_settings["low_stock_threshold"]
+    
+    # 2. Extract today's revenue, sales count, and volume indicators
     today_revenue = manager.get_todays_revenue()
     today_sales_count = manager.get_todays_sales_count()
     today_units_sold = manager.get_todays_units_sold()
+    
+    # 3. Pull metrics from database
     kpi_data = database.get_dashboard_kpis()
-    low_stock_list = database.get_low_stock_alerts(threshold=5)
+    
+    # 4. Use your global instance to pull the Product object list
+    low_stock_list = manager.get_low_stocks_alert(threshold=alert_limit)
+    
     top_products = database.get_top_selling_products(limit=5)
     weekly_trends = database.get_seven_day_revenue_summary()
-    
+
     # 5. Pack everything neatly to send straight to the dashboard template engine
     return render_template(
         'dashboard.html',
@@ -53,7 +83,7 @@ def dashboard():
         sales_count=today_sales_count,
         units_sold=today_units_sold,
         kpis=kpi_data,
-        low_stock=low_stock_list,
+        low_stock_items=low_stock_list,  # Matches template loop variable name
         top_products=top_products,
         weekly_trends=weekly_trends
     )
@@ -218,20 +248,28 @@ def delete_product_page(product_name):
 
 @app.route('/cart')
 def view_cart():
-    """Reads the current session cookie state, hydrates a ShoppingCart engine object, and renders the dynamic UI."""
-    # Read raw cookie dataset or default to clean empty structures
-    session_cart_data = session.get('cart', {})
+    """Compiles the transactional active cart elements and sums overall costs."""
+    if not session.get('logged_in'):
+        return redirect(url_for('login_route'))
+        
+    current_cart = session.get('cart', {})
     
-    # Instantiate the cart logic container and hydrate its dictionary state
-    cart = ShoppingCart()
-    cart.items = session_cart_data
-    
-    # Extract calculated collections for standard Jinja loops
-    cart_items = cart.get_all_items()
-    grand_total = cart.get_total()
-    
-    # Render the structured HTML view file, passing the dataset variables
-    return render_template('cart.html', cart_items=cart_items, grand_total=grand_total)
+    # Calculate the total cost dynamically in Python by looping over the session dict
+    calculated_grand_total = 0.0
+    for key, item in current_cart.items():
+        try:
+            price = float(item.get('price', 0.0))
+            qty = int(item.get('quantity', 0))
+            calculated_grand_total += price * qty
+        except (ValueError, TypeError):
+            continue
+
+    # Ensure you are explicitly passing cart_total down to the context processor receiver
+    return render_template(
+        'cart.html', 
+        cart_items=current_cart, 
+        cart_total=calculated_grand_total
+    )
 
 @app.route('/cart/add/<product_name>', methods=['POST'])
 def test_add_to_cart(product_name):
@@ -330,26 +368,36 @@ def handle_checkout():
         return redirect(url_for('view_cart'))
         
     try:
+        # Load live configuration settings to get the current tax rate
+        current_settings = manager.get_system_settings()
+        active_tax_rate = current_settings["tax_rate"] # e.g., 0.18 for 18%
+
         # 2. Re-compile the raw dictionary session data into structured items
-        # Format required by database: (product_id, quantity, price, tax_placeholder)
         compiled_cart_items = []
-        total_amount = 0.0
+        base_subtotal = 0.0
         
         for p_id, item_details in session_cart_data.items():
             qty = int(item_details['quantity'])
             price = float(item_details['price'])
-            total_amount += qty * price
-            # Append as tuple matching expected unpacked iteration loop variables
-            compiled_cart_items.append((int(p_id), qty, price, 0.00))
+            base_subtotal += qty * price
             
-        # 3. Process the master transaction engine and obtain tracking details
-        invoice_meta = billing.complete_checkout(compiled_cart_items, round(total_amount, 2))
+            # Dynamic Step: Calculate the exact tax portion for this specific line item
+            item_tax = price * active_tax_rate
+            
+            # Append as tuple replacing the old 0.00 placeholder with live calculated tax!
+            compiled_cart_items.append((int(p_id), qty, price, round(item_tax, 2)))
+            
+        # Calculate overall tax and final grand total values
+        total_tax_calculated = base_subtotal * active_tax_rate
+        final_grand_total = base_subtotal + total_tax_calculated
+
+        # 3. Process the master transaction engine with the true final grand total
+        invoice_meta = billing.complete_checkout(compiled_cart_items, round(final_grand_total, 2))
         
-        # 4. CRITICAL SYNC STEP: Retrieve the live saved database snapshot rows!
-        # We reuse your excellent get_invoice_data method from billing.py
+        # 4. CRITICAL SYNC STEP: Retrieve the live saved database snapshot rows
         real_invoice_data = billing.get_invoice_data(invoice_meta["sale_id"])
         
-        # 5. Inject the missing sequential invoice format field into the dictionary payload
+        # 5. Inject required values into the template context dictionary payload
         real_invoice_data["invoice_number"] = invoice_meta["invoice_number"]
         
         # 6. Flash confirmation message and purge session cart storage

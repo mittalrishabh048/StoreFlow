@@ -412,3 +412,17 @@ class InventoryManager:
         database.save_setting_value("low_stock_threshold", threshold)
         
         return True, "Configuration metrics modified successfully."
+
+    def create_invoice_data(self, base_subtotal):
+        """Calculates dynamic tax allocations using active system settings."""
+        settings = self.get_system_settings()
+        
+        # Calculate dynamic tax using the loaded float value (e.g., 0.18 for 18% tax)
+        calculated_tax = base_subtotal * settings["tax_rate"]
+        grand_total = base_subtotal + calculated_tax
+        
+        return {
+            "subtotal": base_subtotal,
+            "tax": calculated_tax,
+            "grand_total": grand_total
+        }

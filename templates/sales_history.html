@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="invoice-wrapper" style="max-width: 850px;"></div>
+<div class="invoice-wrapper" style="max-width: 850px; margin: 0 auto;">
     <div class="invoice-branding-row" style="border-bottom: 2px solid #1a73e8; margin-bottom: 20px;">
         <div>
             <h1 class="invoice-title">Sales Order Registry</h1>
@@ -51,7 +51,7 @@
                         <td style="font-weight: bold; color: #1a73e8;">{{ inv.invoice_number }}</td>
                         <td class="item-qty" style="color: #333;">{{ inv.timestamp }}</td>
                         <td class="text-right" style="font-weight: bold; color: #137333;">
-                            Rs.{{ "%.2f"|format(inv.grand_total) }}
+                            {{ settings.currency }}{{ "%.2f"|format(inv.grand_total) }}
                         </td>
                         <td class="text-center no-print" style="padding: 6px 0; display: flex; justify-content: center; gap: 8px; align-items: center;">
                             <a href="/invoice/{{ inv.sale_id }}" class="btn-print-trigger" style="text-decoration: none; display: inline-block; padding: 6px 12px; font-size: 0.85em; background-color: #f1f3f4; margin: 0;">

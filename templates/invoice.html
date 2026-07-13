@@ -5,8 +5,9 @@
     
     <div class="invoice-branding-row">
         <div>
-            <h1 class="invoice-title">StoreFlow Invoice</h1>
-            <p class="invoice-subtitle">Transactional Sales Receipt Logs</p>
+            <h1 class="invoice-title" style="margin: 0; color: #1a73e8;">{{ settings.store_name }}</h1>
+            <p style="margin: 4px 0 2px 0; color: #4a5568; font-size: 0.9em;">{{ settings.address }}</p>
+            <p style="margin: 0; color: #718096; font-size: 0.85em;">📞 {{ settings.phone }} | ✉️ {{ settings.email }}</p>
         </div>
         <div class="invoice-meta-right">
             <h3 class="invoice-id">Invoice: {{ invoice.invoice_number }}</h3>
@@ -33,18 +34,29 @@
                 <tr>
                     <td class="item-name">{{ item.name }}</td>
                     <td class="text-center item-qty">{{ item.quantity }}</td>
-                    <td class="text-right item-price">Rs.{{ "%.2f"|format(item.price) }}</td>
-                    <td class="text-right item-total">Rs.{{ "%.2f"|format(item.line_total) }}</td>
+                    <td class="text-right item-price">{{ settings.currency }}{{ "%.2f"|format(item.price) }}</td>
+                    <td class="text-right item-total">{{ settings.currency }}{{ "%.2f"|format(item.line_total) }}</td>
                 </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <div class="invoice-totals-wrapper">
-        <div class="totals-inner-box">
-            <div class="totals-flex-row">
-                <span class="totals-label">Grand Total Settled:</span>
-                <span class="totals-amount">Rs.{{ "%.2f"|format(invoice.grand_total) }}</span>
+    <div class="invoice-totals-wrapper" style="display: flex; justify-content: flex-end; margin-top: 20px;">
+        <div class="totals-inner-box" style="width: 300px; display: flex; flex-direction: column; gap: 8px; background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px solid #edf2f7;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: #4a5568;">
+                <span>Subtotal:</span>
+                <strong>{{ settings.currency }}{{ "%.2f"|format(invoice.grand_total) }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.95em; color: #4a5568;">
+                <span>Tax ({{ (settings.tax_rate * 100)|int }}%):</span>
+                <strong>{{ settings.currency }}{{ "%.2f"|format(invoice.grand_total * settings.tax_rate) }}</strong>
+            </div>
+            <hr style="border: 0; border-top: 1px solid #cbd5e0; margin: 5px 0;">
+            <div class="totals-flex-row" style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="totals-label" style="font-weight: bold; color: #1a73e8;">Grand Total Settled:</span>
+                <span class="totals-amount" style="font-size: 1.4em; font-weight: bold; color: #2f855a;">
+                    {{ settings.currency }}{{ "%.2f"|format(invoice.grand_total + (invoice.grand_total * settings.tax_rate)) }}
+                </span>
             </div>
         </div>
     </div>
