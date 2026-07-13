@@ -76,6 +76,28 @@ def init_db():
         cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", ('Rishabh(Admin)', hashed_pw))
         print("[DATABASE SUCCESS] Default admin user successfully seeded.")
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS settings (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+        )
+    """)
+
+    # Establish default fallback organization settings dictionary records
+    default_settings = {
+        "store_name": "StoreFlow Retail",
+        "address": "123 Business Avenue, Tech Hub",
+        "phone": "+91 98765 43210",
+        "email": "support@storeflow.com",
+        "currency": "Rs.",
+        "tax_rate": "0.00",
+        "low_stock_threshold": "5"
+    }
+    
+    # Seed configuration defaults safely without overwriting modified values
+    for k, v in default_settings.items():
+        cursor.execute("INSERT OR IGNORE INTO settings (key, value) VALUES (?, ?)", (k, v))
+    
     connection.commit()
     connection.close()
     print("[DATABASE SUCCESS] All relational tables (products, sales, sale_items) initialized.")
@@ -418,6 +440,27 @@ def get_user_by_username(username, db_path=DB_PATH):
         cursor.execute("SELECT id, username, password FROM users WHERE username = ?", (username,))
         row = cursor.fetchone()
         return dict(row) if row else None
+    finally:
+        conn.close()
+
+def get_all_settings(db_path=DB_PATH):
+    """Retrieves all global configuration options from the key-value storage layer."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT key, value FROM settings")
+        rows = cursor.fetchall()
+        return {row[0]: row[1] for row in rows}
+    finally:
+        conn.close()
+
+def save_setting_value(key, value, db_path=DB_PATH):
+    """Saves or updates a setting configuration line instantly using database UPSERT logic."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (key, str(value)))
+        conn.commit()
     finally:
         conn.close()
 

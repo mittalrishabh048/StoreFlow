@@ -504,5 +504,34 @@ def logout_route():
     flash("You have been signed out successfully.", "success")
     return redirect(url_for('login_route'))
 
+@app.route('/settings', methods=['GET', 'POST'])
+def settings_page():
+    """Manages system customization parameters and configuration metrics update pipelines."""
+    # Guard endpoint to allow access strictly for logged-in administration users
+    if not session.get('logged_in'):
+        flash("Access denied. Please log in first.", "error")
+        return redirect(url_for('login_route'))
+        
+    if request.method == 'POST':
+        form_payload = {
+            "store_name": request.form.get("store_name"),
+            "address": request.form.get("address"),
+            "phone": request.form.get("phone"),
+            "email": request.form.get("email"),
+            "currency": request.form.get("currency"),
+            "tax_rate": request.form.get("tax_rate"),
+            "low_stock_threshold": request.form.get("low_stock_threshold")
+        }
+        
+        success, message = manager.update_system_settings(form_payload)
+        if success:
+            flash(message, "success")
+            return redirect(url_for('settings_page'))
+        else:
+            flash(message, "error")
+            
+    current_configs = manager.get_system_settings()
+    return render_template('settings.html', settings=current_configs)
+
 if __name__ == "__main__":
     app.run(debug=True)

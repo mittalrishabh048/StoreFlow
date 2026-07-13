@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="invoice-wrapper" style="max-width: 650px; margin: 30px auto; padding: 25px;">
+    <div class="invoice-branding-row" style="border-bottom: 2px solid #1a73e8; margin-bottom: 20px;">
+        <div>
+            <h1 class="invoice-title">Global Core Settings</h1>
+            <p class="invoice-subtitle">Modify configuration options across the StoreFlow framework</p>
+        </div>
+        <div class="invoice-actions-row no-print" style="border-top: none; padding-top: 0;">
+            <a href="/" class="btn-dashboard-back" style="background-color: #757070;">← Dashboard</a>
+        </div>
+    </div>
+
+    <form method="POST" action="/settings" style="background: #ffffff; border: 1px solid #e2e8f0; padding: 25px; border-radius: 8px; display: flex; flex-direction: column; gap: 18px;">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+                <label style="display: block; font-size: 0.9em; font-weight: bold; margin-bottom: 5px; color: #4a5568;">Store Engine Name</label>
+                <input type="text" name="store_name" value="{{ settings.store_name }}" required style="width: calc(100% - 18px); padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+            </div>
+            <div>
+                <label style="display: block; font-size: 0.9em; font-weight: bold; margin-bottom: 5px; color: #4a5568;">Base Currency Symbol</label>
+                <input type="text" name="currency" value="{{ settings.currency }}" required style="width: calc(100% - 18px); padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+                <label style="display: block; font-size: 0.9em; font-weight: bold; margin-bottom: 5px; color: #4a5568;">Global Tax Rate (Decimal)</label>
+                <input type="number" step="0.01" min="0" name="tax_rate" value="{{ settings.tax_rate }}" required style="width: calc(100% - 18px); padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+            </div>
+            <div>
+                <label style="display: block; font-size: 0.9em; font-weight: bold; margin-bottom: 5px; color: #4a5568;">Low Stock Warning Level</label>
+                <input type="number" min="0" name="low_stock_threshold" value="{{ settings.low_stock_threshold }}" required style="width: calc(100% - 18px); padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+            </div>
+        </div>
+
+        <div>
+            <label style="display: block; font-size: 0.9em; font-weight: bold; margin-bottom: 5px; color: #4a5568;">Physical Address Location</label>
+            <input type="text" name="address" value="{{ settings.address }}" style="width: calc(100% - 18px); padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div>
+                <label style="display: block; font-size: 0.9em; font-weight: bold; margin-bottom: 5px; color: #4a5568;">Contact Phone Line</label>
+                <input type="text" name="phone" value="{{ settings.phone }}" style="width: calc(100% - 18px); padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+            </div>
+            <div>
+                <label style="display: block; font-size: 0.9em; font-weight: bold; margin-bottom: 5px; color: #4a5568;">Support Email Address</label>
+                <input type="email" name="email" value="{{ settings.email }}" style="width: calc(100% - 18px); padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+            </div>
+        </div>
+
+        <button type="submit" class="btn-dashboard-back" style="border: none; padding: 12px; font-weight: bold; cursor: pointer; text-align: center; margin-top: 10px;">
+            💾 Save Configuration Options
+        </button>
+    </form>
+</div>
+{% endblock %}

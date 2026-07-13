@@ -368,3 +368,47 @@ class InventoryManager:
             return True, "Authentication verified successfully."
             
         return False, "Incorrect security credential password provided."
+
+    def get_system_settings(self):
+        """Retrieves and processes configuration options from the database storage layer."""
+        from src.inventory import database
+        raw_settings = database.get_all_settings()
+        
+        # Enforce clean string fallbacks and correct numeric type casting formats
+        return {
+            "store_name": raw_settings.get("store_name", "StoreFlow Retail"),
+            "address": raw_settings.get("address", ""),
+            "phone": raw_settings.get("phone", ""),
+            "email": raw_settings.get("email", ""),
+            "currency": raw_settings.get("currency", "Rs."),
+            "tax_rate": float(raw_settings.get("tax_rate", 0.00)),
+            "low_stock_threshold": int(raw_settings.get("low_stock_threshold", 5))
+        }
+
+    def update_system_settings(self, settings_dict):
+        """Validates configuration items and updates values in the database layer."""
+        from src.inventory import database
+        
+        # 1. Enforce numerical check validation boundaries
+        try:
+            tax = float(settings_dict.get("tax_rate", 0.0))
+            if tax < 0: raise ValueError
+        except (ValueError, TypeError):
+            return False, "Tax rate parameter must be a valid non-negative decimal value."
+            
+        try:
+            threshold = int(settings_dict.get("low_stock_threshold", 5))
+            if threshold < 0: raise ValueError
+        except (ValueError, TypeError):
+            return False, "Low stock warning threshold parameter must be a positive integer."
+
+        # 2. Push validated settings out using the database helper functions
+        database.save_setting_value("store_name", settings_dict.get("store_name", "").strip())
+        database.save_setting_value("address", settings_dict.get("address", "").strip())
+        database.save_setting_value("phone", settings_dict.get("phone", "").strip())
+        database.save_setting_value("email", settings_dict.get("email", "").strip())
+        database.save_setting_value("currency", settings_dict.get("currency", "Rs.").strip())
+        database.save_setting_value("tax_rate", tax)
+        database.save_setting_value("low_stock_threshold", threshold)
+        
+        return True, "Configuration metrics modified successfully."
