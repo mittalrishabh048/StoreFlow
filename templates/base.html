@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StoreFlow Management System</title>
-    <link rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
 
@@ -42,18 +41,35 @@
     <hr>
 
     <main>
-        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% with messages = get_flashed_messages(with_categories=True) %}
             {% if messages %}
-                {% for category, message in messages %}
-                    <div style="background-color: #e6f4ea; border-left: 4px solid #137333; padding: 12px; margin-bottom: 20px; border-radius: 4px; color: #137333; font-weight: bold;">
-                        {{ message }}
-                    </div>
-                {% endfor %}
+                <div style="max-width: 900px; margin: 15px auto; padding: 0 20px;" class="no-print">
+                    {% for category, message in messages %}
+                
+                        {# 1. Apply formatting entirely using distinct native HTML classes or targeted styles #}
+                        {% if category == 'success' %}
+                            <div style="padding: 15px 20px; margin-bottom: 15px; border-radius: 6px; font-weight: 500; font-size: 0.95em; display: flex; align-items: center; gap: 10px; background-color: #e6f4ea; color: #137333; border: 1px solid #c2e7cc;">
+                                <span>✅</span>
+                        {% elif category == 'warning' %}
+                            <div style="padding: 15px 20px; margin-bottom: 15px; border-radius: 6px; font-weight: 500; font-size: 0.95em; display: flex; align-items: center; gap: 10px; background-color: #fef7e0; color: #b06000; border: 1px solid #fde293;">
+                                <span>⚠️</span>
+                        {% else %}
+                            <div style="padding: 15px 20px; margin-bottom: 15px; border-radius: 6px; font-weight: 500; font-size: 0.95em; display: flex; align-items: center; gap: 10px; background-color: #fce8e6; color: #c5221f; border: 1px solid #fad2cf;">
+                                <span>❌</span>
+                        {% endif %}
+                    
+                                <div style="flex-grow: 1;">{{ message }}</div>
+                                <button onclick="this.parentElement.style.display='none';" style="background: transparent; border: none; font-size: 1.2em; cursor: pointer; color: inherit; line-height: 1;">&times;</button>
+                            </div>
+
+                    {% endfor %}
+                </div>
             {% endif %}
         {% endwith %}
-        
-        {% block content %}
-        {% endblock %}
+
+        <div style="padding: 0 20px;">
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
     <hr>
