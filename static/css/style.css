@@ -240,3 +240,108 @@ footer {
         max-width: 100% !important;
     }
 }
+
+/* ==========================================================================
+   PR-1 : Reusable Utility Classes
+   ========================================================================== */
+
+/* Layout */
+
+.page-wide {
+    max-width: 950px;
+}
+
+.flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.flex-gap {
+    display: flex;
+    gap: 10px;
+}
+
+.grid-auto-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+/* Panels */
+
+.panel {
+    background: #f8f9fa;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+}
+
+.panel-padding {
+    padding: 15px;
+}
+
+.panel-large {
+    padding: 25px;
+}
+
+/* Card */
+
+.stat-card {
+    text-align: center;
+}
+
+.stat-label {
+    display: block;
+    font-size: .8rem;
+    font-weight: bold;
+    color: #718096;
+    text-transform: uppercase;
+}
+
+.stat-value {
+    margin-top: 5px;
+    font-size: 1.6rem;
+    font-weight: bold;
+}
+
+/* Colors */
+
+.text-success {
+    color: #2f855a;
+}
+
+.text-primary {
+    color: #2b6cb0;
+}
+
+.text-dark {
+    color: #4a5568;
+}
+
+/* Forms */
+
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: .9rem;
+    font-weight: bold;
+    color: #4a5568;
+}
+
+.section-spacing {
+    margin-bottom: 25px;
+}
