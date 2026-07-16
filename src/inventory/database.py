@@ -72,8 +72,8 @@ def init_db():
     cursor.execute("SELECT COUNT(*) FROM users")
     if cursor.fetchone()[0] == 0:
         # Securely hash the baseline default password string 'admin123'
-        hashed_pw = generate_password_hash('admin_1')
-        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", ('Rishabh(Admin)', hashed_pw))
+        hashed_pw = generate_password_hash('admin123')
+        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", ('admin', hashed_pw))
         print("[DATABASE SUCCESS] Default admin user successfully seeded.")
 
     cursor.execute("""
