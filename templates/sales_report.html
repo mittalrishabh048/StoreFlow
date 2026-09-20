@@ -16,7 +16,7 @@
         <div class="invoice-actions-row no-print" style="border-top:none; padding-top:0;">
 
             <a
-                href="/"
+                href="/dashboard"
                 class="btn-dashboard-back"
                 style="background-color:#757070;"
             >
@@ -97,7 +97,7 @@
         <div class="panel panel-padding stat-card">
             <span class="stat-label">Total Billed Revenue</span>
             <h3 class="stat-value text-success">
-                Rs.{{ "%.2f"|format(report.total_revenue) }}
+                {{ settings.currency }}{{ "%.2f"|format(report.total_revenue) }}
             </h3>
         </div>
 
@@ -111,7 +111,7 @@
         <div class="panel panel-padding stat-card">
             <span class="stat-label">Average Basket Ticket</span>
             <h3 class="stat-value text-dark">
-                Rs.{{ "%.2f"|format(report.avg_order_value) }}
+                {{ settings.currency }}{{ "%.2f"|format(report.avg_order_value) }}
             </h3>
         </div>
 
@@ -149,7 +149,7 @@
                     </td>
 
                     <td class="text-right" style="font-weight:bold; color:#2f855a;">
-                        Rs.{{ "%.2f"|format(order.total_amount) }}
+                        {{ settings.currency }}{{ "%.2f"|format(order.total_amount) }}
                     </td>
                 </tr>
 

@@ -1,9 +1,11 @@
 import os
 import sys
+from dotenv import load_dotenv
 from flask import Flask, render_template, request, redirect, url_for, flash, session, Response
 
 # Ensure the 'src' directory is in the Python search path to allow direct module imports
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(BASE_DIR, '.env'))
 sys.path.append(os.path.join(BASE_DIR, 'src'))
 
 # FIXED: Import your actual InventoryManager class name
@@ -17,7 +19,11 @@ app = Flask(
     static_folder=os.path.join(BASE_DIR, 'static')
 )
 
-app.secret_key = 'storeflow_secure_session_encryption_bypass_key'
+app.secret_key = os.environ.get('SECRET_KEY')  # Use environment variable for production
+
+from datetime import timedelta
+
+app.permanent_session_lifetime = timedelta(days=30)
 
 # FIXED: Initialize without passing db_path, since your __init__ handles it internally
 manager = InventoryManager()
@@ -25,12 +31,13 @@ manager = InventoryManager()
 @app.before_request
 def lock_protected_routes():
     """Global route guard checking session variables before serving protected views."""
-    # List of public endpoints that anyone can access without being logged in
-    public_endpoints = ['login_route', 'static']
+
+    # These endpoints can be accessed without an account.
+    public_endpoints = ['landing_page', 'login_route','register_route','static']
     
-    # If the user is trying to access a protected page and is NOT logged in, redirect them
+    # Everything else requires an authenticated session.
     if request.endpoint not in public_endpoints and not session.get('logged_in'):
-        flash("Unauthorized access. Please log in first.", "error")
+        flash("Please log in or create an account to use StoreFlow.", "error")
         return redirect(url_for('login_route'))
 
 @app.context_processor
@@ -53,6 +60,12 @@ def inject_global_settings():
         })
 
 @app.route('/')
+def landing_page():
+    """Public landing page for visitors exploring StoreFlow."""
+    return render_template('landing.html')
+
+
+@app.route('/dashboard')
 def dashboard():
     """Gathers all analytical data frames and updates the administration portal."""
     from src.inventory import database
@@ -230,8 +243,6 @@ def delete_product_page(product_name):
 @app.route('/cart')
 def view_cart():
     """Compiles the transactional active cart elements and sums overall costs."""
-    if not session.get('logged_in'):
-        return redirect(url_for('login_route'))
         
     current_cart = session.get('cart', {})
     calculated_grand_total = 0.0
@@ -459,17 +470,57 @@ def export_sales_csv():
         headers={"Content-Disposition": f"attachment; filename={filename}"}
     )
 
+
+@app.route('/register', methods=['GET', 'POST'])
+def register_route():
+    if session.get('logged_in'):
+        return redirect(url_for('dashboard'))
+
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
+
+        if password != confirm_password:
+            flash("Passwords do not match.", "error")
+            return render_template(
+                'register.html',
+                username=username
+            )
+
+        success, message = manager.register_user(username, password)
+
+        if success:
+            flash("Account created successfully. Please log in.", "success")
+            return redirect(url_for('login_route'))
+
+        flash(message, "error")
+
+        return render_template(
+            'register.html',
+            username=username
+        )
+
+    return render_template('register.html')
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login_route():
     """Handles template presentation and session validation for system access authentication."""
+    if session.get('logged_in'):
+        return redirect(url_for('dashboard'))
+
     if request.method == 'POST':
         username = request.form.get('username', '')
         password = request.form.get('password', '')
+        remember_me = request.form.get('remember_me') == 'on'
         
         success, message = manager.authenticate_user(username, password)
         if success:
             session['logged_in'] = True
             session['username'] = username.strip()
+            session.permanent = remember_me
+
             flash("Welcome back! System access verification approved.", "success")
             return redirect(url_for('dashboard'))
         else:
@@ -477,7 +528,7 @@ def login_route():
             
     return render_template('login.html')
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 def logout_route():
     """Clears the active user session and redirects back to the login screen."""
     session.clear()
@@ -487,9 +538,6 @@ def logout_route():
 @app.route('/settings', methods=['GET', 'POST'])
 def settings_page():
     """Manages system customization parameters and configuration metrics update pipelines."""
-    if not session.get('logged_in'):
-        flash("Access denied. Please log in first.", "error")
-        return redirect(url_for('login_route'))
         
     if request.method == 'POST':
         # Step 10: Input Sanitization - Clean trailing empty spaces across layout text values

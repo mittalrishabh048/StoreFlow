@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="invoice-wrapper"
+     style="max-width: 420px; margin: 60px auto; padding: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-radius: 8px; background: #ffffff;">
+
+    <div style="text-align: center; margin-bottom: 25px;">
+        <h2 style="margin: 0; color: #1a73e8; font-size: 1.8em;">
+            Create StoreFlow Account
+        </h2>
+
+        <p style="margin: 5px 0 0 0; color: #718096; font-size: 0.9em;">
+            Create an account to access the StoreFlow management system.
+        </p>
+    </div>
+
+    <form method="POST"
+          action="{{ url_for('register_route') }}"
+          style="display: flex; flex-direction: column; gap: 20px;">
+
+        <div>
+            <label style="display: block; margin-bottom: 6px; font-weight: bold;">
+                Username
+            </label>
+
+            <input
+                type="text"
+                name="username"
+                value="{{ username|default('') }}"
+                required
+                autocomplete="username"
+                placeholder="Choose a username..."
+                style="width: 100%; padding: 10px; box-sizing: border-box;">
+        </div>
+
+        <div>
+            <label style="display: block; margin-bottom: 6px; font-weight: bold;">
+                Password
+            </label>
+
+            <input
+                type="password"
+                name="password"
+                required
+                autocomplete="new-password"
+                placeholder="Create a password..."
+                style="width: 100%; padding: 10px; box-sizing: border-box;">
+        </div>
+
+        <div>
+            <label style="display: block; margin-bottom: 6px; font-weight: bold;">
+                Confirm Password
+            </label>
+
+            <input
+                type="password"
+                name="confirm_password"
+                required
+                autocomplete="new-password"
+                placeholder="Enter password again..."
+                style="width: 100%; padding: 10px; box-sizing: border-box;">
+        </div>
+
+        <button
+            type="submit"
+            style="padding: 12px; background: #1a73e8;
+                   color: white; border: none; border-radius: 5px;
+                   font-weight: bold; cursor: pointer;">
+            Create Account
+        </button>
+
+    </form>
+
+    <p style="text-align: center; margin-top: 20px; color: #718096;">
+        Already have an account?
+        <a href="{{ url_for('login_route') }}"
+           style="color: #1a73e8; font-weight: bold;">
+            Log in
+        </a>
+    </p>
+
+</div>
+
+{% endblock %}

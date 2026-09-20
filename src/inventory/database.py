@@ -35,8 +35,9 @@ def init_db():
 
     #2. Billing Sales Transaction Table (Receipt Headers)
     # Force a reset of the old table layout so the new columns populate correctly
-    cursor.execute("DROP TABLE IF EXISTS sale_items;")
-    cursor.execute("DROP TABLE IF EXISTS sales;")
+    
+    #cursor.execute("DROP TABLE IF EXISTS sale_items;")
+    #cursor.execute("DROP TABLE IF EXISTS sales;")
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS sales (
@@ -71,10 +72,23 @@ def init_db():
 
     cursor.execute("SELECT COUNT(*) FROM users")
     if cursor.fetchone()[0] == 0:
-        # Securely hash the baseline default password string 'admin123'
-        hashed_pw = generate_password_hash('admin123')
-        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", ('admin', hashed_pw))
-        print("[DATABASE SUCCESS] Default admin user successfully seeded.")
+        admin_username = os.environ.get("ADMIN_USERNAME")
+        admin_password = os.environ.get("ADMIN_PASSWORD")
+
+        if not admin_username or not admin_password:
+            raise RuntimeError(
+                "ADMIN_USERNAME and ADMIN_PASSWORD environment variables must be set "
+                "before initializing the database."
+            )
+
+        hashed_pw = generate_password_hash(admin_password)
+
+        cursor.execute(
+            "INSERT INTO users (username, password) VALUES (?, ?)",
+            (admin_username, hashed_pw)
+        )
+
+        print(f"[DATABASE SUCCESS] Initial admin user '{admin_username}' successfully seeded.")
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS settings (
@@ -438,6 +452,33 @@ def get_user_by_username(username, db_path=DB_PATH):
         return dict(row) if row else None
     finally:
         conn.close()
+
+
+def create_user(username, plain_password, db_path=DB_PATH):
+    """Creates a new user account with a securely hashed password."""
+    conn = sqlite3.connect(db_path)
+    cursor = conn.cursor()
+
+    try:
+        hashed_password = generate_password_hash(plain_password)
+
+        cursor.execute(
+            "INSERT INTO users (username, password) VALUES (?, ?)",
+            (username, hashed_password)
+        )
+
+        conn.commit()
+        return True, "Account created successfully."
+
+    except sqlite3.IntegrityError:
+        conn.rollback()
+        return False, "That username is already registered."
+
+    finally:
+        cursor.close()
+        conn.close()
+
+
 
 def get_all_settings(db_path=DB_PATH):
     """Retrieves all global configuration options from the key-value storage layer."""

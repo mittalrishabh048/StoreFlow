@@ -11,17 +11,36 @@
     <form method="POST" action="/login" style="display: flex; flex-direction: column; gap: 20px;">
         <div>
             <label style="display: block; font-size: 0.9em; font-weight: bold; margin-bottom: 6px; color: #4a5568;">Username</label>
-            <input type="text" name="username" required placeholder="Enter administrative username..." style="width: calc(100% - 20px); padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 0.95em;">
+            <input type="text" name="username" required autocomplete="username" placeholder="Enter administrative username..." style="width: calc(100% - 20px); padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 0.95em;">
         </div>
         
         <div>
             <label style="display: block; font-size: 0.9em; font-weight: bold; margin-bottom: 6px; color: #4a5568;">Security Password</label>
-            <input type="password" name="password" required placeholder="Enter system password..." style="width: calc(100% - 20px); padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 0.95em;">
+            <input type="password" name="password" required autocomplete="current-password" placeholder="Enter system password..." style="width: calc(100% - 20px); padding: 10px; border: 1px solid #cbd5e0; border-radius: 4px; font-size: 0.95em;">
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <input
+                type="checkbox"
+                name="remember_me"
+                id="remember_me"
+                style="width: auto;">
+
+            <label for="remember_me" style="margin: 0;">
+                Remember me
+            </label>
         </div>
 
         <button type="submit" class="btn-dashboard-back" style="width: 100%; border: none; padding: 12px; font-size: 1em; font-weight: bold; cursor: pointer; text-align: center; border-radius: 4px;">
             Verify Credentials
         </button>
     </form>
+    <p style="text-align: center; margin-top: 20px; color: #718096;">
+        Don't have an account?
+        <a href="{{ url_for('register_route') }}"
+        style="color: #1a73e8; font-weight: bold;">
+            Create an account
+        </a>
+    </p>
 </div>
 {% endblock %}

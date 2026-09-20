@@ -369,6 +369,32 @@ class InventoryManager:
             
         return False, "Incorrect security credential password provided."
 
+    def register_user(self, username, plain_password):
+        """Validates and creates a new user account."""
+        from src.inventory import database
+
+        username = username.strip()
+
+        if not username:
+            return False, "Username cannot be empty."
+
+        if len(username) < 3:
+            return False, "Username must be at least 3 characters long."
+
+        if len(username) > 30:
+            return False, "Username cannot be longer than 30 characters."
+
+        if not username.replace("_", "").isalnum():
+            return False, "Username can contain only letters, numbers, and underscores."
+
+        if not plain_password:
+            return False, "Password cannot be empty."
+
+        if len(plain_password) < 8:
+            return False, "Password must be at least 8 characters long."
+
+        return database.create_user(username, plain_password)
+
     def get_system_settings(self):
         """Retrieves and processes configuration options from the database storage layer."""
         from src.inventory import database

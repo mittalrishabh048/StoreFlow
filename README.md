@@ -1,34 +1,59 @@
 # 🚀 StoreFlow Inventory Management System
 
-> **A production-oriented Inventory, Billing, Reporting, and Analytics System built with Python, Flask, SQLite, HTML, and CSS while learning Software Engineering principles.**
+> **A learning-driven Inventory, Billing, Reporting, and Analytics System built with Python, Flask, SQLite, HTML, and CSS.**
+
+StoreFlow is a full-stack inventory management system developed as the capstone project of my **14-Day Software Engineering Bootcamp**.
+
+The project started as a simple command-line inventory application and gradually evolved into a Flask-based web application with inventory management, billing, sales tracking, analytics, reporting, authentication, configuration management, and error handling.
+
+The main goal was not simply to add features, but to learn how a software project can be **designed, structured, tested, refactored, documented, and maintained** while applying software engineering principles.
 
 ---
 
-## 📖 Project Overview
+# 📖 Project Overview
 
-StoreFlow is a full-stack inventory management system developed as the capstone project of my **14-Day Software Engineering Bootcamp**. Instead of focusing only on writing code, this project was built by following professional software engineering practices such as **Layered Architecture, Separation of Concerns, Validation, Authentication, Reporting, Configuration Management, and Refactoring**.
+StoreFlow currently focuses on managing the day-to-day operations of a **single store**.
 
-The objective was not simply to create an inventory application, but to understand **how medium-sized software projects are designed, structured, implemented, and maintained** in a professional environment.
+The application provides:
 
-Throughout the project, every new feature was designed before implementation, reviewed after completion, and continuously improved to build the mindset of a Software Engineer rather than just a programmer.
+- Inventory management
+- Product search
+- Shopping cart and checkout
+- Invoice generation
+- Sales history
+- Sale voiding with stock restoration
+- Dashboard analytics
+- Inventory and sales reports
+- CSV exports
+- User registration and authentication
+- Database-backed store settings
+- Input validation
+- Custom error pages
+
+### Current Scope
+
+StoreFlow currently operates as a **single-store system with user authentication**.
+
+Authentication allows multiple accounts to access the application, but store data is currently shared across accounts. **Multi-user / multi-store data isolation is planned for a future version.**
+
+This keeps the current version focused on the core inventory and billing workflow while leaving room for the architecture to evolve later.
 
 ---
 
 # ✨ Project Highlights
 
-### 📦 Inventory Management
+## 📦 Inventory Management
 
 - Add Products
 - Edit Products
 - Delete Products
-- Product Search
+- Product Search by Name or Category
 - Inventory Summary
 - Low Stock Alerts
-- Inventory Valuation Report
+- Inventory Valuation
+- Stock Updates
 
----
-
-### 🛒 Billing System
+## 🛒 Billing & Sales
 
 - Shopping Cart
 - Quantity Management
@@ -37,73 +62,58 @@ Throughout the project, every new feature was designed before implementation, re
 - Sequential Invoice Numbers
 - Printable Invoices
 - Historical Invoice Viewer
-- Void Sale with Automatic Stock Restoration
+- Sales History
+- Sale Voiding
+- Automatic Stock Restoration after Voiding
 
----
+## 📊 Dashboard & Analytics
 
-### 📊 Analytics & Reports
-
-- Dashboard KPIs
-- Daily Revenue Summary
+- Daily Revenue
 - Sales Count
 - Units Sold
-- Top 5 Best Selling Products
-- 7-Day Revenue Analytics
-- Sales Reporting
-- Inventory Reporting
-- CSV Export (Inventory)
-- CSV Export (Sales)
+- Low Stock Alerts
+- Top 5 Best-Selling Products
+- Seven-Day Revenue Summary
+- Dashboard KPIs
+
+## 📑 Reports
+
+- Inventory Valuation Report
+- Sales Report
+- Date-Based Sales Filtering
+- Product-Based Sales Filtering
+- Inventory CSV Export
+- Sales CSV Export
 - Dynamic CSV File Names
 
----
+## 🔐 Authentication & Security
 
-### 🔐 Authentication & Security
-
-- Secure Login System
+- User Registration
+- Login
+- Logout
 - Password Hashing
 - Flask Session Authentication
-- Global Route Protection
-- Logout Workflow
-- Server-side Validation
+- Protected Routes
+- Remember Me Sessions
+- Server-Side Input Validation
 - Input Sanitization
-- Custom Error Pages (404 & 500)
-- Flash Messaging System
+- Environment-Based Secret Configuration
+- Flash Messaging
+- Custom 404 and 500 Error Pages
 
----
+## ⚙️ Configuration Management
 
-### ⚙️ Configuration Management
+StoreFlow provides database-backed configuration for:
 
-- Dynamic Store Name
-- Dynamic Address
-- Dynamic Phone Number
-- Dynamic Email
-- Dynamic Currency
-- Dynamic Tax Rate
-- Configurable Low Stock Threshold
-- Database-driven Application Settings
-- Global Flask Context Processor
+- Store Name
+- Address
+- Phone Number
+- Email
+- Currency
+- Tax Rate
+- Low Stock Threshold
 
----
-
-# 🎯 Goals of the Project
-
-The purpose of StoreFlow was to learn:
-
-- Software Engineering Thinking
-- Project Architecture
-- Flask Development
-- SQLite Database Design
-- Backend Development
-- Business Logic Separation
-- Authentication
-- Sessions
-- Reporting Systems
-- Error Handling
-- Production Readiness
-- Code Organization
-- Git & GitHub Workflow
-
-instead of only learning syntax.
+These settings are dynamically used throughout the application.
 
 ---
 
@@ -117,112 +127,59 @@ instead of only learning syntax.
 | Frontend | HTML5 |
 | Styling | CSS3 |
 | Template Engine | Jinja2 |
+| Authentication | Flask Sessions + Werkzeug Password Hashing |
+| Configuration | Python-dotenv |
 | Version Control | Git |
 | Repository Hosting | GitHub |
 
 ---
 
-# ⭐ Major Features
-
-## Inventory
-
-- ✅ Add Product
-- ✅ Edit Product
-- ✅ Delete Product
-- ✅ Product Search
-- ✅ Inventory Summary
-- ✅ Low Stock Alerts
-
----
-
-## Billing
-
-- ✅ Shopping Cart
-- ✅ Checkout Workflow
-- ✅ Invoice Generation
-- ✅ Printable Invoice
-- ✅ Historical Invoice Viewer
-- ✅ Sequential Invoice Numbers
-- ✅ Transaction Management
-
----
-
-## Reports
-
-- ✅ Inventory Valuation
-- ✅ Sales Reports
-- ✅ Dashboard KPIs
-- ✅ Revenue Analytics
-- ✅ CSV Export
-
----
-
-## Authentication
-
-- ✅ Login
-- ✅ Logout
-- ✅ Password Hashing
-- ✅ Session Authentication
-- ✅ Protected Routes
-
----
-
-## Configuration
-
-- ✅ Settings Page
-- ✅ Dynamic Currency
-- ✅ Dynamic Tax
-- ✅ Dynamic Store Information
-- ✅ Configurable Low Stock Threshold
-
----
-
-## Production Features
-
-- ✅ Flash Messages
-- ✅ Custom 404 Page
-- ✅ Custom 500 Page
-- ✅ Validation Audit
-- ✅ Input Sanitization
-- ✅ Responsive Navigation
-- ✅ Layered Architecture
-
----
-
 # 🏗 Software Architecture
 
+StoreFlow follows a layered structure that separates the web interface, business logic, and database operations.
+
+```text
+                         Browser
+                            │
+                            ▼
+                     Jinja2 Templates
+                            │
+                            ▼
+                       Flask Routes
+                            │
+                            ▼
+                    Business Logic Layer
+                  ┌─────────────────────┐
+                  │ InventoryManager    │
+                  │ ShoppingCart        │
+                  │ Billing Functions   │
+                  └─────────────────────┘
+                            │
+                            ▼
+                     Database Layer
+                            │
+                            ▼
+                          SQLite
 ```
-                    Browser
-                       │
-                       ▼
-               Jinja2 Templates
-                       │
-                       ▼
-                 Flask Routes
-                       │
-                       ▼
-              Business Layer
-        ┌─────────────────────────┐
-        │ InventoryManager        │
-        │ ShoppingCart            │
-        │ Billing Logic           │
-        └─────────────────────────┘
-                       │
-                       ▼
-              Database Layer
-                (SQLite)
-```
+
+The main responsibility of each layer is separated as follows:
+
+- **Flask Routes:** Handle HTTP requests, form submissions, redirects, and rendering.
+- **Business Layer:** Handles inventory operations, cart logic, reporting preparation, authentication-related operations, and application logic.
+- **Database Layer:** Handles SQLite connections, queries, transactions, users, sales, products, and settings.
+- **Templates:** Provide the web interface using Jinja2.
 
 ---
 
 # 🗂 Project Structure
 
-```
+```text
 StoreFlow/
 │
 ├── app.py
 ├── README.md
 ├── requirements.txt
+├── .env.example
 ├── screenshots/
 │
 ├── src/
@@ -231,13 +188,14 @@ StoreFlow/
 │   │   ├── manager.py
 │   │   └── product.py
 │   │
-│   |── billing/
-│   |   └── billing.py
-|   |    
-|   └──main.py
-|   
+│   ├── billing/
+│   │   └── billing.py
+│   │
+│   └── main.py
+│
 ├── templates/
 │   ├── base.html
+│   ├── landing.html
 │   ├── dashboard.html
 │   ├── products.html
 │   ├── addproduct.html
@@ -247,6 +205,7 @@ StoreFlow/
 │   ├── inventory_report.html
 │   ├── sales_report.html
 │   ├── login.html
+│   ├── register.html
 │   ├── settings.html
 │   ├── delete_confirm.html
 │   ├── 404.html
@@ -254,7 +213,7 @@ StoreFlow/
 │
 ├── static/
 │   ├── css/
-|   |   └──style.css
+│   │   └── style.css
 │   ├── js/
 │   └── images/
 │
@@ -265,128 +224,199 @@ StoreFlow/
 
 # 🧠 Software Engineering Principles Applied
 
-This project focuses on **software engineering practices**, not just feature implementation.
+The project was developed with an emphasis on software engineering practices rather than only feature implementation.
 
-Throughout development, the following principles were applied:
+### Architecture & Organization
 
 - Layered Architecture
 - Separation of Concerns
 - Business Logic Isolation
-- Configuration over Hardcoding
-- Server-side Validation
-- Input Sanitization
-- Session Management
-- Authentication
-- SQL Transactions
-- Atomic Operations
-- Error Handling
-- Flash Messaging
-- Production Readiness
-- Code Reviews
-- Git Version Control
+- Modular Project Structure
+- Configuration Management
 
-These concepts transformed the project from a simple CRUD application into a structured software engineering project.
+### Backend & Database
+
+- Flask Routing
+- SQLite Database Design
+- CRUD Operations
+- Parameterized SQL Queries
+- SQL Transactions
+- Atomic Database Operations
+- Relational Data Modeling
+
+### Application Security
+
+- Authentication
+- Password Hashing
+- Session Management
+- Protected Routes
+- Server-Side Validation
+- Input Sanitization
+- Environment-Based Secrets
+
+### Application Reliability
+
+- Error Handling
+- Custom 404 / 500 Pages
+- Flash Messaging
+- Data Persistence
+- Validation and Testing
+
+### Development Workflow
+
+- Incremental Development
+- Git Version Control
+- GitHub Workflow
+- Refactoring
+- Code Review
+- Documentation
 
 ---
 
 # 📈 Development Journey
 
-StoreFlow was developed incrementally over **14 days**, with each day introducing new concepts and improving the existing architecture.
+StoreFlow was developed incrementally over **14 days**.
 
-The project evolved through the following phases:
+The project evolved through several stages:
 
-- CLI Inventory System
-- SQLite Integration
-- Flask Migration
-- Web Interface
-- CRUD Operations
-- Shopping Cart
-- Billing System
-- Invoice Generation
-- Reporting Module
-- Analytics Dashboard
-- Authentication
-- Configuration Management
-- Error Handling
-- Production Readiness
+```text
+CLI Inventory System
+        ↓
+SQLite Integration
+        ↓
+Inventory Management
+        ↓
+Flask Migration
+        ↓
+Web Interface
+        ↓
+CRUD Operations
+        ↓
+Shopping Cart
+        ↓
+Billing System
+        ↓
+Invoice Generation
+        ↓
+Sales History
+        ↓
+Reporting
+        ↓
+Analytics Dashboard
+        ↓
+Authentication & Registration
+        ↓
+Configuration Management
+        ↓
+Error Handling
+        ↓
+Testing & Stabilization
+```
 
-Each phase built upon the previous one while continuously improving software design and maintainability.
+Each stage built upon the previous implementation rather than starting the project again from scratch.
 
 ---
-
-## 📌 Continue Reading
-
-The remaining sections include:
-
-- Installation Guide
-- Running the Project
-- Screenshots
-- Database Schema
-- Learning Outcomes
-- Challenges Faced
-- Future Improvements
-- Author
-- Acknowledgements
-- License
-
-➡️ Continue to **Part 2** below.
-
 
 # ⚙️ Installation Guide
 
 ## Prerequisites
 
-Before running StoreFlow, ensure the following are installed:
+Before running StoreFlow, make sure you have:
 
 - Python 3.10 or later
 - Git
-- pip (Python Package Manager)
+- pip
 
----
-
-## Clone the Repository
+## 1. Clone the Repository
 
 ```bash
 git clone https://github.com/mittalrishabh048/StoreFlow.git
 cd StoreFlow
 ```
 
----
+## 2. Create a Virtual Environment
 
-## Install Dependencies
+### Windows
 
 ```bash
-pip install flask
+python -m venv venv
+venv\Scripts\activate
 ```
 
-> *(Additional dependencies may be added in future versions through a `requirements.txt` file.)*
+### macOS / Linux
 
----
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
 
-## Run the Application
+## 3. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+## 4. Configure Environment Variables
+
+Create a `.env` file in the project root and use `.env.example` as the template.
+
+```env
+SECRET_KEY=your-secret-key
+ADMIN_USERNAME=your-admin-username
+ADMIN_PASSWORD=your-admin-password
+```
+
+**Do not commit `.env` to GitHub.**
+
+## 5. Initialize the Database
+
+The application initializes the SQLite database when the application starts.
+
+The database file is stored under:
+
+```text
+data/storeflow.db
+```
+
+The initial admin account is created from the `ADMIN_USERNAME` and `ADMIN_PASSWORD` environment variables when no users exist in the database.
+
+## 6. Run StoreFlow
 
 ```bash
 python app.py
 ```
 
-The application will start locally.
+Open:
 
-Open your browser and visit:
-
-```
+```text
 http://127.0.0.1:5000
 ```
 
 ---
 
-# 🔑 Default Login Credentials
+# 🔑 Authentication
 
-```
-Username : admin
-Password : admin123
+StoreFlow includes:
+
+- User registration
+- Username validation
+- Password validation
+- Password hashing
+- Login authentication
+- Protected routes
+- Logout
+- Remember Me sessions
+
+The initial account can be configured through:
+
+```env
+ADMIN_USERNAME=your-admin-username
+ADMIN_PASSWORD=your-admin-password
 ```
 
-> Change these credentials before deploying the application in a real-world environment.
+Additional accounts can be created through the registration page.
+
+> **Current scope:** Authentication is implemented, but accounts currently access the same single-store data. Separate store ownership and data isolation are planned for a future version.
 
 ---
 
@@ -394,11 +424,7 @@ Password : admin123
 
 StoreFlow uses **SQLite** as its relational database.
 
-### Tables
-
-### products
-
-Stores inventory information.
+## `products`
 
 | Field | Description |
 |------|-------------|
@@ -408,25 +434,17 @@ Stores inventory information.
 | category | Product Category |
 | stock | Available Quantity |
 
----
-
-### sales
-
-Stores invoice information.
+## `sales`
 
 | Field | Description |
 |------|-------------|
 | id | Sale ID |
 | invoice_number | Sequential Invoice Number |
-| timestamp | Date & Time |
-| total_amount | Grand Total |
+| timestamp | Sale Date & Time |
+| total_amount | Sale Total |
 | status | Active / Void |
 
----
-
-### sale_items
-
-Stores every product inside an invoice.
+## `sale_items`
 
 | Field | Description |
 |------|-------------|
@@ -434,13 +452,9 @@ Stores every product inside an invoice.
 | sale_id | Related Sale |
 | product_id | Purchased Product |
 | quantity | Quantity Purchased |
-| price_at_sale | Historical Product Price |
+| price_at_sale | Product Price at Sale |
 
----
-
-### users
-
-Stores login credentials.
+## `users`
 
 | Field | Description |
 |------|-------------|
@@ -448,19 +462,18 @@ Stores login credentials.
 | username | Login Username |
 | password | Hashed Password |
 
----
+Passwords are stored using Werkzeug password hashing rather than plain-text passwords.
 
-### settings
+## `settings`
 
-Key-value configuration table.
-
-Examples:
+Stores application configuration as key-value pairs, including:
 
 - Store Name
+- Address
+- Phone
+- Email
 - Currency
 - Tax Rate
-- Phone Number
-- Email
 - Low Stock Threshold
 
 ---
@@ -567,105 +580,152 @@ A friendly error page displayed whenever an unexpected server-side error occurs.
 
 ---
 
-# 🧪 Software Engineering Concepts Practiced
+---
 
-This project was intentionally developed using professional software engineering practices.
+# 🧪 Testing & Stabilization
 
-During development I learned and applied:
+The current version was tested across several areas during development.
 
-- Layered Architecture
-- Separation of Concerns
-- Business Logic Design
-- SQLite Database Design
-- CRUD Operations
-- SQL Transactions
-- Atomic Operations
-- Flask Routing
-- Request Lifecycle
-- Sessions
-- Authentication
-- Password Hashing
-- Flash Messages
-- Error Handling
-- Validation
-- Sanitization
-- Reporting Systems
-- Configuration Management
-- Context Processors
-- Git Workflow
-- Code Reviews
-- Refactoring
+### Functional Testing
+
+- Navigation
+- Registration
+- Login
+- Logout
+- Product CRUD
+- Product Search
+- Inventory operations
+- Shopping Cart
+- Checkout
+- Invoice generation
+- Sales History
+- Sale Voiding
+- Stock Restoration
+- Dashboard
+- Reports
+- CSV Export
+- Settings
+
+### Edge-Case Testing
+
+- Invalid registration inputs
+- Duplicate usernames
+- Invalid product values
+- Invalid quantities
+- Invalid URLs
+- Empty cart checkout
+- Invalid product references
+- Repeated sale voiding
+
+### Data-Integrity Testing
+
+- Database persistence after restart
+- Stock changes after checkout
+- Stock restoration after voiding
+- Invoice persistence
+- Sales history persistence
+
+### Authentication Testing
+
+- Protected route access
+- Login validation
+- Registration validation
+- Logged-in route behavior
+- Logout behavior
+- Session behavior
+
+Testing helped identify issues during development and guided further stabilization of the current version.
 
 ---
 
 # 📚 What I Learned
 
-Building StoreFlow helped me move beyond writing Python programs and begin thinking like a software engineer.
+Building StoreFlow helped me move beyond writing isolated Python programs and start thinking more about software engineering.
 
-Some of the biggest lessons included:
+Some of the biggest lessons were:
 
-- Designing applications before implementation.
-- Separating presentation, business, and data layers.
-- Building reusable and maintainable code.
-- Understanding HTTP request flow.
-- Designing relational databases.
-- Managing user sessions securely.
-- Implementing authentication.
-- Validating and sanitizing user input.
-- Writing production-oriented Flask applications.
-- Maintaining projects using Git and GitHub.
+- Designing before implementing.
+- Breaking an application into logical layers.
+- Separating presentation, business logic, and database operations.
+- Designing relational database tables.
+- Understanding Flask request and response flow.
+- Managing sessions and authentication.
+- Validating user input on the server.
+- Handling transactions and maintaining data integrity.
+- Building reporting and analytics features.
+- Using Git and GitHub throughout development.
+- Debugging problems caused by interactions between different parts of the system.
+- Testing features instead of assuming that working code is automatically correct.
+- Refactoring existing code instead of constantly rewriting applications from scratch.
 
-Most importantly, I learned that software engineering is not only about making software work—it is about making software **maintainable, scalable, secure, and understandable**.
+Most importantly, I learned that building software is an iterative process.
+
+A feature working is only one step. Understanding how the feature fits into the rest of the application, testing it, finding problems, and improving the design are equally important parts of software engineering.
 
 ---
 
-# 🚧 Future Improvements
+# 🚧 Current Limitations & Future Improvements
 
-The current version is fully functional, but several improvements are planned.
+StoreFlow is a learning project and is **not intended to represent a perfect or production-ready commercial system**.
 
-### Refactoring
+## 🔐 Security
 
-- Reduce duplicated code
-- Split large route files
-- Improve helper functions
-- Move remaining business logic out of Flask routes
-- Improve project organization
-
-### Security
-
-- Environment variables for SECRET_KEY
-- Role-based authentication
+- CSRF protection
+- Role-Based Access Control
+- More granular authorization
+- Improved account security
 - Password reset functionality
-- CSRF Protection
-- Improved session management
+- Production HTTPS/session configuration
 
-### Features
+## 👥 Multi-User / Multi-Store Architecture
+
+- Separate stores for different accounts
+- Store ownership
+- User-to-store relationships
+- Data isolation between stores
+- Multiple users within a store
+- User roles and permissions
+
+## 📦 Additional Business Features
 
 - Customer Management
 - Supplier Management
 - Barcode Support
+- Product Images
 - PDF Invoice Export
 - Email Receipts
-- Product Images
 - Advanced Dashboard Charts
-- Multi-user Support
-- User Roles & Permissions
+
+## 🏗 Engineering Improvements
+
+- Further refactoring
+- More automated tests
+- Improved database migrations
 - REST API
 - Docker Support
+- Improved deployment configuration
+
+These are future directions rather than features of the current version.
 
 ---
 
 # 🎯 Project Status
 
-✅ Week 2 Complete
+**Current Version: V1**
 
-Current Stage:
+### Current Focus
 
-**Refactoring & Code Quality Improvements**
+**Functional inventory and billing system with authentication, reporting, analytics, and configuration management.**
 
-Upcoming Stage:
+### Current Scope
 
-**Production-Level Enhancements**
+**Single-store system with user authentication.**
+
+### Future Direction
+
+**Multi-user / multi-store architecture, stronger security controls, additional business features, and further engineering improvements.**
+
+The current version represents a learning milestone rather than the final version of the project.
 
 ---
 
@@ -675,49 +735,49 @@ Upcoming Stage:
 
 Aspiring Software Engineer | Python Developer | Computer Science Student
 
-This project was built as part of a self-driven Software Engineering Bootcamp to learn how professional software systems are designed and developed.
+StoreFlow was built as part of my self-driven Software Engineering Bootcamp to learn how real-world software systems are designed, structured, tested, and improved.
 
 GitHub:
 
-```
 https://github.com/mittalrishabh048
-```
-
-*(Replace with your actual GitHub profile link.)*
 
 ---
 
 # 🙏 Acknowledgements
 
-Special thanks to everyone who contributes educational resources that make self-learning software engineering possible.
+This project represents many hours of learning, experimentation, debugging, testing, refactoring, and documentation.
 
-This project represents countless hours of learning, experimentation, debugging, refactoring, and continuous improvement.
+The project was developed with the help of educational resources and AI-assisted development tools as part of the learning process.
+
+The goal was not simply to generate working code, but to understand the architecture, concepts, decisions, and implementation behind the system.
 
 ---
 
-
 # ⭐ Support
 
-If you found this project helpful or interesting:
+If you find StoreFlow interesting:
 
-⭐ Star the repository
-
-🍴 Fork it
-
-🛠 Suggest improvements
-
-📢 Share feedback
-
-Every contribution and suggestion helps make the project even better.
+- ⭐ Star the repository
+- 🍴 Fork the project
+- 🛠 Suggest improvements
+- 💬 Share feedback
 
 ---
 
 # 💬 Final Note
 
-> **StoreFlow is more than an inventory management system—it represents my journey from writing Python scripts to understanding software engineering principles.**
+> **StoreFlow represents my journey from writing Python programs to thinking more like a software engineer.**
 
-This project taught me that great software is not built by adding features alone, but by carefully designing, refining, testing, documenting, and continuously improving the codebase.
+What started as a command-line inventory application gradually became a Flask-based system with inventory management, billing, sales tracking, analytics, reporting, authentication, configuration, and database-backed workflows.
 
-Every module, feature, and refactoring step contributed to a deeper understanding of how real-world software is engineered.
+The most valuable part of the project was not the number of features.
 
-Thank you for taking the time to explore StoreFlow!
+It was learning how to:
+
+**design → implement → test → debug → refactor → document → improve**
+
+and repeat the process.
+
+StoreFlow is still evolving, and the current V1 is only one step toward a larger system.
+
+Thanks for taking the time to explore the project! 🚀

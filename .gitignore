@@ -7,3 +7,6 @@ venv/
 
 # SQLite database
 *.db
+
+.env
+tempCodeRunnerFile.py

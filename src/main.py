@@ -1,4 +1,6 @@
 import sys
+from dotenv import load_dotenv
+load_dotenv()
 from src.inventory.database import init_db
 from src.inventory.manager import InventoryManager
 

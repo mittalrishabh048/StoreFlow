@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div style="max-width: 900px; margin: 70px auto; padding: 20px; text-align: center;">
+
+    <h1 style="font-size: 2.8em; margin-bottom: 15px; color: #1a73e8;">
+        StoreFlow
+    </h1>
+
+    <h2 style="font-size: 1.6em; margin-bottom: 20px;">
+        Inventory & Billing Management System
+    </h2>
+
+    <p style="max-width: 700px; margin: 0 auto 30px; color: #718096; font-size: 1.05em; line-height: 1.7;">
+        StoreFlow is a web-based system for managing products, inventory,
+        billing, sales history, reports, and store configuration from one place.
+    </p>
+
+    <div style="margin-top: 30px;">
+        <a href="{{ url_for('login_route') }}"
+           style="display: inline-block; padding: 12px 24px; background: #1a73e8;
+                  color: white; text-decoration: none; border-radius: 5px;
+                  font-weight: bold;">
+            Log In
+        </a>
+    </div>
+
+</div>
+
+{% endblock %}
