@@ -2,10 +2,12 @@ import sqlite3
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Project root: StoreFlow/
+PROJECT_ROOT = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../..")
+)
 
-# 2. Step up two directory levels to reach STOREFLOW, then descend straight into the data/ directory!
-DB_PATH = os.path.abspath(os.path.join(BASE_DIR, "../../data/storeflow.db"))
+DB_PATH = os.path.join(PROJECT_ROOT, "data", "storeflow.db")
 
 def get_connection():
     """Creates and returns a connection to the SQLite database file."""

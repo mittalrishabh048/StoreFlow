@@ -10,6 +10,7 @@ sys.path.append(os.path.join(BASE_DIR, 'src'))
 
 # FIXED: Import your actual InventoryManager class name
 from src.inventory.manager import InventoryManager
+from src.inventory.database import init_db
 from src.billing.billing import ShoppingCart, get_invoice_data
 
 # Instantiate the engine constructor
@@ -24,6 +25,9 @@ app.secret_key = os.environ.get('SECRET_KEY')  # Use environment variable for pr
 from datetime import timedelta
 
 app.permanent_session_lifetime = timedelta(days=30)
+
+# Initialize the SQLite database before the Flask application starts serving requests
+init_db()
 
 # FIXED: Initialize without passing db_path, since your __init__ handles it internally
 manager = InventoryManager()

@@ -10,6 +10,14 @@ The main goal was not simply to add features, but to learn how a software projec
 
 ---
 
+## 🚀 Live Demo
+
+**Live Application:** https://storeflow-2tju.onrender.com
+
+> Note: The deployed version is hosted on Render and may take a short time to wake up after inactivity.
+
+---
+
 # 📖 Project Overview
 
 StoreFlow currently focuses on managing the day-to-day operations of a **single store**.
