@@ -66,6 +66,9 @@ def inject_global_settings():
 @app.route('/')
 def landing_page():
     """Public landing page for visitors exploring StoreFlow."""
+    if session.get('logged_in'):
+        return redirect(url_for('dashboard'))
+
     return render_template('landing.html')
 
 

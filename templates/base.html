@@ -9,8 +9,8 @@
 <body>
 
     <header>
-        <nav>
-            <span style="color: white; font-weight: bold; font-size: 1.1em; letter-spacing: 0.5px;">
+        <nav class="main-nav">
+            <span class="brand">
                 🚀 StoreFlow Engine
             </span>
 
@@ -19,25 +19,46 @@
                     <span style="color: #cbd5e0; font-size: 0.9em; margin-right: 10px;">
                         👤 Hello, <strong>{{ session.get('username') }}</strong>
                     </span>
-                    <a href="{{ url_for('dashboard') }}">Dashboard</a>
-                    <a href="{{ url_for('products_page') }}">Products</a>
-                    <a href="{{ url_for('sales_history') }}">Sales History</a>
-                    <a href="{{ url_for('inventory_report_page') }}">Inventory Valuation</a>
-                    <a href="{{ url_for('sales_report_page') }}">Sales Reporting</a>
-                    <a href="{{ url_for('view_cart') }}" style="background-color: rgba(255, 255, 255, 0.2); font-weight: bold; border-radius: 4px; padding: 6px 12px;">
+                    <a href="{{ url_for('dashboard') }}"
+                        class="{% if request.path == url_for('dashboard') %}active{% endif %}">
+                        Dashboard
+                    </a>
+
+                    <a href="{{ url_for('products_page') }}"
+                        class="{% if request.path.startswith('/products') or request.path.startswith('/add-product') or request.path.startswith('/edit-product') or request.path.startswith('/delete-product') %}active{% endif %}">
+                        Products
+                    </a>
+
+                    <a href="{{ url_for('sales_history') }}"
+                        class="{% if request.path.startswith('/sales') or request.path.startswith('/invoice') or request.path.startswith('/void_sale') %}active{% endif %}">
+                        Sales History
+                    </a>
+
+                    <a href="{{ url_for('inventory_report_page') }}"
+                        class="{% if request.path.startswith('/report/inventory') %}active{% endif %}">
+                        Inventory Valuation
+                    </a>
+
+                    <a href="{{ url_for('sales_report_page') }}"
+                        class="{% if request.path.startswith('/report/sales') %}active{% endif %}">
+                        Sales Reporting
+                    </a>
+
+                    <a href="{{ url_for('view_cart') }}"
+                        class="cart-link {% if request.path.startswith('/cart') or request.path == '/checkout' %}active{% endif %}">
                         🛒 View Cart
                     </a>
                     
-                    <form method="POST" action="{{ url_for('logout_route') }}" style="display: inline;">
-                        <button type="submit"
-                            style="background-color: #d93025; color: white; border: none;
-                                font-weight: bold; border-radius: 4px;
-                                padding: 6px 12px; margin-left: 10px; cursor: pointer;">
-                        🚪 Logout
+                    <form method="POST" action="{{ url_for('logout_route') }}" class="logout-form">
+                        <button type="submit" class="logout-button">
+                            🚪 Logout
                         </button>
                     </form>
                     
-                    <a href="/settings">Settings</a>
+                    <a href="/settings"
+                        class="{% if request.path.startswith('/settings') %}active{% endif %}">
+                        Settings
+                    </a>
                 {% else %}
                     <a href="/login">Log In</a>
                 {% endif %}
